@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:padding="10dp"
+     >
+ 
+     <TextView android:id="@+id/layout_widget_config_ordinal"
+         android:textSize="16sp"
+         android:textStyle="bold"
+         android:layout_width="wrap_content"
+         android:layout_height="fill_parent"
+         android:text="1"
+         />
+     <TextView android:id="@+id/layout_widget_config_name"
+         android:textSize="16sp"
+         android:textStyle="bold"
+         android:layout_width="wrap_content"
+         android:layout_height="fill_parent"
+         android:layout_toRightOf="@id/layout_widget_config_ordinal"
+         android:layout_marginLeft="10dp"
+         android:text="Privat"
+         />
+ 
+     <TextView android:id="@+id/layout_widget_config_balance"
+         android:textSize="16sp"
+         android:layout_width="wrap_content"
+         android:layout_height="fill_parent"
+         android:layout_alignParentRight="true"
+         android:text="15 324 kr"
+         />
+ </RelativeLayout>
+ 

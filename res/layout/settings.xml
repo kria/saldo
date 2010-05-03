@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent">
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:padding="5dp" 
+		android:background="#FF333333"
+		android:text="Update interval" />
+	<Spinner 
+        android:id="@+id/update_freq_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:prompt="@string/settings_update_interval_prompt"
+    />
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:padding="5dp" 
+		android:background="#FF333333"
+		android:text="Bank logins" />
+	<ListView android:id="@id/android:list" 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<TextView android:id="@id/android:empty"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"
+		android:padding="10dp" 
+		android:textSize="20sp" 
+		android:text="No bank logins. Add in menu." />
+</LinearLayout>

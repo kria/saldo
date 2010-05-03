@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:background="@drawable/widget_frame"
+	android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<RelativeLayout android:layout_width="wrap_content"
+		android:layout_height="fill_parent">
+		<ImageButton android:id="@+id/layout_widget_btn_update"
+			android:layout_alignParentLeft="true" android:layout_centerVertical="true"
+			android:src="@drawable/ic_refresh"
+			android:layout_width="wrap_content" android:layout_height="wrap_content" />
+	</RelativeLayout>
+	<RelativeLayout android:layout_height="fill_parent"
+		android:layout_width="fill_parent">
+		<Button android:layout_height="fill_parent"
+			android:layout_width="fill_parent" android:background="@null"
+			android:id="@+id/layout_widget_btn_open">
+		</Button>
+		<TextView android:id="@+id/layout_widget_text" android:text="@string/widget_text"
+			android:layout_height="fill_parent" android:layout_width="fill_parent"
+			android:gravity="center" android:textSize="25dp" android:textStyle="bold"
+			android:textColor="@android:color/white" />
+		<FrameLayout android:id="@+id/layout_widget_progress" 
+			android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_alignParentRight="true"
+        	android:visibility="gone">
+			<ProgressBar
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content" style="?android:attr/progressBarStyleSmall"
+				android:layout_marginTop="3dp" android:layout_marginRight="3dp" />
+		</FrameLayout>
+	</RelativeLayout>
+</LinearLayout>

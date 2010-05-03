@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout android:layout_width="wrap_content"
+	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_gravity="center_horizontal" android:padding="10px">
+	<ScrollView
+		android:layout_width="wrap_content" android:layout_height="wrap_content">
+		<LinearLayout android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical" android:padding="10px">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/app_name" android:textSize="10pt"
+				android:padding="5px" android:layout_gravity="center_horizontal"></TextView>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+				android:id="@+id/layout_about_version"
+				android:typeface="serif" android:textStyle="italic"></TextView>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/by" android:layout_gravity="center_horizontal"
+				android:textSize="8pt" android:paddingLeft="10px"
+				android:paddingRight="10px" android:paddingBottom="5px"
+				android:paddingTop="10px"></TextView>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/url_project"
+				android:layout_gravity="center_horizontal" android:autoLink="web"></TextView>
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/disclaimer" android:layout_gravity="center_horizontal"
+				android:textSize="5pt" android:typeface="serif" android:textStyle="italic" android:paddingLeft="10px"
+				android:paddingRight="10px" android:paddingBottom="5px"
+				android:paddingTop="20px"></TextView>
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>

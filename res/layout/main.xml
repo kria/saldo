@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+<TextView  
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/main_instructions"
+    />
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<Button android:text="@string/refresh" android:id="@+id/layout_main_btn_go" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+		<FrameLayout android:id="@+id/layout_main_progress" 
+			android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:visibility="invisible">
+			<ProgressBar
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content" style="?android:attr/progressBarStyle"
+				android:layout_marginLeft="3dp" />
+		</FrameLayout>
+	<TextView  android:id="@+id/layout_main_message" 
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text=""
+    android:layout_marginLeft="10dp"
+    />
+</LinearLayout>
+
+<ListView android:id="@+id/layout_main_accounts" android:layout_width="fill_parent" android:layout_height="wrap_content"></ListView>
+
+
+</LinearLayout>

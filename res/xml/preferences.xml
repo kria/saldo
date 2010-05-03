@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+            android:title="@string/pref_cat_account">
+		<EditTextPreference android:key="username"
+			android:title="@string/pref_username_title" 
+			android:defaultValue=""
+			android:persistent="true" 
+			android:inputType="numberSigned"/>
+		<EditTextPreference android:key="password"
+			android:title="@string/pref_password_title" 
+			android:defaultValue="" 
+			android:persistent="true"
+			android:inputType="textPassword" />
+    </PreferenceCategory>
+    <!-- <PreferenceCategory
+    	android:title="@string/pref_cat_update">
+    </PreferenceCategory> -->
+</PreferenceScreen>
