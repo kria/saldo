@@ -150,11 +150,11 @@ public class NordeaManager implements BankManager {
             Pattern pattern = Pattern.compile(ACCOUNTS_REGEX);
             Matcher matcher = pattern.matcher(res);
 
-            int remoteId=1;
+            int ordinal=1;
             while (matcher.find()) {
 
-            	remoteId = Integer.parseInt(matcher.group(1));
-                int ordinal = Integer.parseInt(matcher.group(1));
+            	int remoteId = Integer.parseInt(matcher.group(1));
+                ordinal = Integer.parseInt(matcher.group(1));
                 String name = Html.fromHtml(matcher.group(2)).toString();
                 long balance = Long.parseLong(matcher.group(3).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
@@ -169,11 +169,12 @@ public class NordeaManager implements BankManager {
             Log.d(TAG, res);
             pattern = Pattern.compile(CREDITS_REGEX);
             matcher = pattern.matcher(res2);
-            int i = ++remoteId;
+            int i = ++ordinal;
             while (matcher.find()) {
 
-            	remoteId = i++; // we need a unique remoteId per bank login
-                int ordinal = remoteId;
+            	ordinal = i++;
+            	int remoteId = ordinal+100; // we need a unique remoteId per bank login
+                
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
@@ -182,11 +183,12 @@ public class NordeaManager implements BankManager {
            //FONDER
             pattern = Pattern.compile(FOND_REGEX);
             matcher = pattern.matcher(res);
-            i = ++remoteId;
+            i = ++ordinal;
             while (matcher.find()) {
 
-            	remoteId = i++;
-                int ordinal = remoteId;
+            	ordinal = i++;
+            	int remoteId = ordinal+200;
+               
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
