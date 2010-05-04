@@ -35,6 +35,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.text.Html;
 import android.util.Log;
 
 import java.io.IOException;
@@ -68,13 +69,17 @@ public class NordeaManager implements BankManager {
     private static final String CHECKCODE_PARAM = "CHECKCODE";
     
     private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.5; en-se; HTC Hero Build/CUPCAKE) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1";
-    private static final String ACCOUNTS_REGEX = 
-        "KF00T', '(\\d+)', '([\\w\\s\\d]+)'[^\\n]*\\s*<td class=\"last\" align=\"right\" nowrap>([0-9\\.\\,]+)";
-    
-    private static final String CREDITS_REGEX = 
-        "Kontoutdrag'; return true;\" onMouseOut=\"status='';\">([\\w\\s\\d]+)<[^\\n]*\\s*<td align=\"right\" class=\"last\" nowrap>([0-9\\.\\,]+)";
-    
 
+    private static final String ACCOUNTS_REGEX = 
+		"KF00T', '(\\d+)', '([\\w\\s\\dˆ‰Â÷ƒ≈&;#\\-]+)'[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+	
+    private static final String FOND_REGEX = 
+		"sendFund[^\\>]*>([\\w\\s\\dˆ‰Â÷ƒ≈&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+
+    private static final String CREDITS_REGEX = 
+		"Kontoutdrag[^\\>]*>([\\w\\s\\dˆ‰Â÷ƒ≈&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+	
+	
 
 	private BankLogin bankLogin;
 	
@@ -124,7 +129,7 @@ public class NordeaManager implements BankManager {
             parameters.add(new BasicNameValuePair(USER_PARAM, bankLogin.getUsername()));
             parameters.add(new BasicNameValuePair(PASS_PARAM, bankLogin.getPassword()));
             parameters.add(new BasicNameValuePair(OBJECT_PARAM, "TT00"));
-            parameters.add(new BasicNameValuePair(CHECKCODE_PARAM, "124535648456899"));
+            parameters.add(new BasicNameValuePair(CHECKCODE_PARAM, Integer.toString(((int) (System.currentTimeMillis() / 1000L)))+"123"));
 
             Log.d(TAG, "logging in...");
             String res = HTTPHelper.post(httpClient, LOGIN_URL, parameters);
@@ -135,7 +140,8 @@ public class NordeaManager implements BankManager {
                 throw new AuthenticationException("auth fail");
             }
 
-            // Now we should be logged in with a cookie set, let's get accounts info
+            
+            //ACCOUNTS
             Log.d(TAG, "getting account info...");
             res = HTTPHelper.get(httpClient, ACCOUNTS_URL);
             //Log.d(TAG, "accounts html dump:");
@@ -143,40 +149,44 @@ public class NordeaManager implements BankManager {
             Pattern pattern = Pattern.compile(ACCOUNTS_REGEX);
             Matcher matcher = pattern.matcher(res);
 
+            int remoteId=1;
             while (matcher.find()) {
-                //int groupCount = matcher.groupCount();
-                //if (groupCount < 4) {
-                //                    throw new NordeaException("Pattern match issue: groupCount < 4");
-                //}
-                //for (int i = 1; i <= groupCount; i++) {
-                //    Log.d(TAG, i + ":" + matcher.group(i));
-                //}
-                int remoteId = Integer.parseInt(matcher.group(1));
+
+            	remoteId = Integer.parseInt(matcher.group(1));
                 int ordinal = Integer.parseInt(matcher.group(1));
-                String name = matcher.group(2);
+                String name = Html.fromHtml(matcher.group(2)).toString();
                 long balance = Long.parseLong(matcher.group(3).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
             }
             
-            // Now we should be logged in with a cookie set, let's get accounts info
+            
+            
+            //CREDIT CARDS
             Log.d(TAG, "getting account info...");
-            res = HTTPHelper.get(httpClient, CREDITS_URL);
+            String res2 = HTTPHelper.get(httpClient, CREDITS_URL);
             Log.d(TAG, "accounts html dump:");
             Log.d(TAG, res);
             pattern = Pattern.compile(CREDITS_REGEX);
-            matcher = pattern.matcher(res);
-            int i = 0;
+            matcher = pattern.matcher(res2);
+            int i = ++remoteId;
             while (matcher.find()) {
-                //int groupCount = matcher.groupCount();
-                //if (groupCount < 4) {
-                //                    throw new NordeaException("Pattern match issue: groupCount < 4");
-                //}
-                //for (int i = 1; i <= groupCount; i++) {
-                //    Log.d(TAG, i + ":" + matcher.group(i));
-                //}
-                int remoteId = 100 + i++; // we need a unique remoteId per bank login
+
+            	remoteId = i++; // we need a unique remoteId per bank login
                 int ordinal = remoteId;
-                String name = matcher.group(1);
+                String name = Html.fromHtml(matcher.group(1)).toString();
+                long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
+                accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
+            }
+            
+           //FONDER
+            pattern = Pattern.compile(FOND_REGEX);
+            matcher = pattern.matcher(res);
+            i = ++remoteId;
+            while (matcher.find()) {
+
+            	remoteId = i++;
+                int ordinal = remoteId;
+                String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
             }
