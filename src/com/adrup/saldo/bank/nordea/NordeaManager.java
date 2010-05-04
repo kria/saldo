@@ -73,12 +73,13 @@ public class NordeaManager implements BankManager {
     private static final String ACCOUNTS_REGEX = 
 		"KF00T', '(\\d+)', '([\\w\\s\\döäåÖÄÅ&;#\\-]+)'[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
 	
+    private static final String CREDITS_REGEX = 
+		"Kontoutdrag[^\\>]*>([\\w\\s\\döäåÖÄÅ&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+
     private static final String FOND_REGEX = 
 		"sendFund[^\\>]*>([\\w\\s\\döäåÖÄÅ&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
 
-    private static final String CREDITS_REGEX = 
-		"Kontoutdrag[^\\>]*>([\\w\\s\\döäåÖÄÅ&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
-	
+ 	
 	
 
 	private BankLogin bankLogin;
