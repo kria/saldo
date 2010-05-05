@@ -71,13 +71,13 @@ public class NordeaManager implements BankManager {
     private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.5; en-se; HTC Hero Build/CUPCAKE) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1";
 
     private static final String ACCOUNTS_REGEX = 
-		"KF00T', '(\\d+)', '([\\w\\s\\dצהוײִֵ&;#\\-]+)'[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+		"KF00T', '(\\d+)', '([^']+)'[^\\n]*[^>]*>([0-9.,-]+)";
 	
     private static final String CREDITS_REGEX = 
-		"Kontoutdrag[^\\>]*>([\\w\\s\\dצהוײִֵ&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+		"Kontoutdrag[^>]*>([^<]+)<[^\\n]*[^>]*>([0-9.,-]+)";
 
     private static final String FOND_REGEX = 
-		"sendFund[^\\>]*>([\\w\\s\\dצהוײִֵ&;#\\-]+)<[^\\n]*[^\\>]*>([0-9\\.\\,\\-]+)";
+		"sendFund[^>]*>([^<]+)<[^\\n]*[^>]*>([0-9.,-]+)";
 
  	
 	
