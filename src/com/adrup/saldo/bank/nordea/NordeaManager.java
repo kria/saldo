@@ -112,19 +112,7 @@ public class NordeaManager implements BankManager {
         //httpClient.getParams().setParameter(HttpProtocolParams.USER_AGENT, USER_AGENT);
 
         try {
-            // First get token
-            Log.d(TAG, "getting token...");
-            //String res = HTTPHelper.get(httpClient, LOGIN_URL);
-            //Pattern pattern = Pattern.compile(TOKEN_REGEX);
-            //Matcher matcher = pattern.matcher(res);
-            /*if (!matcher.find()) {
-                Log.e(TAG, "No token match.");
-                throw new NordeaException("No token match.");
-            }
-            String token = matcher.group(1);
-            Log.d(TAG, "token= " + token);*/
-
-            // Then do login
+            // Do login
             List<NameValuePair> parameters = new ArrayList<NameValuePair>(3);
             //parameters.add(new BasicNameValuePair(TOKEN_PARAM, token));
             parameters.add(new BasicNameValuePair(USER_PARAM, bankLogin.getUsername()));
@@ -169,10 +157,10 @@ public class NordeaManager implements BankManager {
             Log.d(TAG, res);
             pattern = Pattern.compile(CREDITS_REGEX);
             matcher = pattern.matcher(res2);
-            int i = ++ordinal;
+            int i = ordinal;
             while (matcher.find()) {
 
-            	ordinal = i++;
+            	ordinal = ++i;
             	int remoteId = ordinal+100; // we need a unique remoteId per bank login
                 
                 String name = Html.fromHtml(matcher.group(1)).toString();
@@ -181,18 +169,18 @@ public class NordeaManager implements BankManager {
             }
             
            //FONDER
-           /* pattern = Pattern.compile(FOND_REGEX);
+            pattern = Pattern.compile(FOND_REGEX);
             matcher = pattern.matcher(res);
-            i = ++ordinal;
+            i = ordinal;
             while (matcher.find()) {
 
-            	ordinal = i++;
+            	ordinal = ++i;
             	int remoteId = ordinal+200;
                
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
-            }*/
+            }
             
             
             
