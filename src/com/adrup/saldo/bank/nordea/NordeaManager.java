@@ -181,7 +181,7 @@ public class NordeaManager implements BankManager {
             }
             
            //FONDER
-            pattern = Pattern.compile(FOND_REGEX);
+           /* pattern = Pattern.compile(FOND_REGEX);
             matcher = pattern.matcher(res);
             i = ++ordinal;
             while (matcher.find()) {
@@ -192,7 +192,7 @@ public class NordeaManager implements BankManager {
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
                 accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
-            }
+            }*/
             
             
             
