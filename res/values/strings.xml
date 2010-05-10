@@ -5,7 +5,7 @@
     
     <string name="version">Version %s</string>
     <string name="by">by Kristian Adrup 2010</string>
-    <string name="url_project">http://www.adrup.com/saldo/</string>
+    <string name="url_project">http://github.com/kria/saldo</string>
     <string name="disclaimer">This application is unofficial and not supported by Swedbank.</string>
     
     <string name="main_instructions">Set user/password in the settings menu and then hit refresh.</string>

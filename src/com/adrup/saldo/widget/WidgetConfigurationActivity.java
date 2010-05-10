@@ -33,8 +33,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RemoteViews;
@@ -42,24 +44,25 @@ import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
-
 /**
  * An activity that displays the configuration screen that let's the user pick an account, when adding a widget.
  * 
  * @author Kristian Adrup
- *
+ * 
  */
 public class WidgetConfigurationActivity extends ListActivity {
 	private static final String TAG = "WidgetConfigurationActivity";
 
 	private static final String PREFS_NAME = "com.adrup.saldo.widget.SaldoWidgetProvider";
 	private static final String ACCOUNT_ID_PREFIX_KEY = "account_id_";
+	private static final String ACCOUNT_IDS_PREFIX_KEY = "account_ids_";
 
 	int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	EditText mAppWidgetPrefix;
 
 	private Cursor mCursor;
 	private DatabaseAdapter dbAdapter;
+	private ListView listView;
 
 	public WidgetConfigurationActivity() {
 		super();
@@ -68,21 +71,22 @@ public class WidgetConfigurationActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "onCreate()");
-		super.onCreate(savedInstanceState);		
+		super.onCreate(savedInstanceState);
 
 		// Set the result to CANCELED. This will cause the widget host to cancel
 		// out of the widget placement if they press the back button.
 		setResult(RESULT_CANCELED);
 
 		// Set the view layout resource to use.
-		// setContentView(R.layout.widget_configuration);
-
-		// Find the EditText
-		// mAppWidgetPrefix = (EditText)findViewById(R.id.appwidget_prefix);
+		setContentView(R.layout.widget_configuration);
 
 		// Bind the action for the save button.
-		// findViewById(R.id.save_button).setOnClickListener(mOnClickListener);
-
+		Button okButton = (Button) findViewById(R.id.layout_widget_config_ok_btn);
+		okButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				addWidget();
+			}
+		});
 		// Find the widget id from the intent.
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
@@ -105,19 +109,23 @@ public class WidgetConfigurationActivity extends ListActivity {
 
 		// Now create a new list adapter bound to the cursor.
 		// SimpleListAdapter is designed for binding to a Cursor.
+		// TODO: fix a Checkable layout, this one is crap
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, // Context.
-				R.layout.widget_config_list_item, // Specify the row template to use (here, two columns bound to the two
-													// retrieved cursor rows).
+				R.layout.widget_multi_accounts_list_item, // Specify the row template to use (here, two columns bound to
+															// the two retrieved cursor rows).
 				mCursor, // Pass in the cursor to bind to.
-				new String[] { Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, // Array of cursor columns
-																								// to bind to.
-				new int[] { R.id.layout_widget_config_ordinal, R.id.layout_widget_config_name,
-						R.id.layout_widget_config_balance }); // Parallel array of which template objects to bind to
-																// those columns.
+				new String[] { Account.KEY_NAME }, // Array of cursor columns
+				// to bind to.
+				new int[] { android.R.id.text1 }); // Parallel array of which template objects to bind to
+		// those columns.
 
 		adapter.setViewBinder(new AccountsViewBinder());
 		// Bind to our new adapter.
 		setListAdapter(adapter);
+		listView = getListView();
+
+		listView.setItemsCanFocus(false);
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
 	}
 
@@ -132,28 +140,46 @@ public class WidgetConfigurationActivity extends ListActivity {
 		Log.d(TAG, "onPause()");
 		super.onPause();
 	}
+
 	@Override
 	protected void onDestroy() {
 		Log.d(TAG, "onPause()");
 		super.onDestroy();
 		dbAdapter.close();
 	}
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		int accountId = (int)id;
-		saveAccountIdPref(this, mAppWidgetId, accountId);
-		
 
-        // Push widget update to surface
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-        RemoteViews views = SaldoWidgetProvider.buildUpdate(this, mAppWidgetId, accountId, true);
-        appWidgetManager.updateAppWidget(mAppWidgetId, views);
+	protected void addWidget() {
+		int noOfAccounts = listView.getCount();
 
-		// Make sure we pass back the original appWidgetId
-		Intent resultValue = new Intent();
-		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-		setResult(RESULT_OK, resultValue);
-		finish();
+		ArrayList<Integer> selectedAccountIds = new ArrayList<Integer>();
+		for (int pos = 0; pos < noOfAccounts; pos++) {
+			if (listView.isItemChecked(pos)) {
+				selectedAccountIds.add((int) listView.getItemIdAtPosition(pos));
+			}
+		}
+		int noOfSelectedAccounts = selectedAccountIds.size();
+		if (noOfSelectedAccounts == 0) {
+			finish();
+		} else {
+			int accountId = selectedAccountIds.get(0);
+
+			String accountIdsString = TextUtils.join(",", selectedAccountIds);
+			saveAccountIdPref(this, mAppWidgetId, accountId);
+			saveAccountIdsPref(this, mAppWidgetId, accountIdsString);
+
+			// Push widget update to surface
+			AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+			RemoteViews views = SaldoWidgetProvider.buildUpdate(this, mAppWidgetId, accountId, 0, noOfSelectedAccounts,
+					true);
+			appWidgetManager.updateAppWidget(mAppWidgetId, views);
+
+			// Make sure we pass back the original appWidgetId
+			Intent resultValue = new Intent();
+			resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+			setResult(RESULT_OK, resultValue);
+			finish();
+		}
+
 	}
 
 	// Write the accountId to the SharedPreferences object for this widget
@@ -178,8 +204,23 @@ public class WidgetConfigurationActivity extends ListActivity {
 		prefs.commit();
 	}
 
-	static void loadAllTitlePrefs(Context context, ArrayList<Integer> appWidgetIds, ArrayList<String> texts) {
+	static void saveAccountIdsPref(Context context, int appWidgetId, String accountIds) {
+		SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+
+		prefs.putString(ACCOUNT_IDS_PREFIX_KEY + appWidgetId, accountIds);
+		prefs.commit();
+	}
+
+	static String loadAccountIdsPref(Context context, int appWidgetId) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		String accountIds = prefs.getString(ACCOUNT_IDS_PREFIX_KEY + appWidgetId, null);
+		return accountIds;
+	}
+
+	static void deleteAccountIdsPref(Context context, int appWidgetId) {
+		SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+		prefs.remove(ACCOUNT_IDS_PREFIX_KEY + appWidgetId);
+		prefs.commit();
 	}
 
 }
-

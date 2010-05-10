@@ -27,6 +27,7 @@ import com.adrup.saldo.DatabaseAdapter;
 import com.adrup.saldo.R;
 import com.adrup.saldo.Saldo;
 import com.adrup.saldo.Util;
+import com.adrup.saldo.bank.BankLogin;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -35,6 +36,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -46,7 +48,7 @@ import android.widget.RemoteViews;
  */
 public class SaldoWidgetProvider extends AppWidgetProvider {
 	private static final String TAG = "SaldoWidget";
-
+	
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		Log.d(TAG, "onUpdate()");
@@ -85,23 +87,66 @@ public class SaldoWidgetProvider extends AppWidgetProvider {
 		}
 	}
 	
-
 	static RemoteViews buildUpdate(Context context, int appWidgetId, int accountId, boolean readDb) {
+		int currIndex = -1;
+		int noOfAccounts = 0;
+		
+		String accounts = WidgetConfigurationActivity.loadAccountIdsPref(context, appWidgetId);
+		if (accounts != null) {
+			String[] accountarr = accounts.split(",");
+			
+			noOfAccounts = accountarr.length;
+			for (int i = 0; i < noOfAccounts; i++) {
+				if (accountarr[i].equals(String.valueOf(accountId))) {
+					currIndex = i;
+					break;
+				}
+			}
+		}
+		if (currIndex == -1) {
+			Log.d(TAG, "Unknown currIndex, starting over");
+			currIndex = 0;
+		} 
+		return buildUpdate(context, appWidgetId, accountId, currIndex, noOfAccounts, true);
+	}
+	static RemoteViews buildUpdate(Context context, int appWidgetId, int accountId, int currentAccountIndex, int noOfAccounts,  boolean readDb) {
 		Log.d(TAG, "buildUpdate()");
 		// Get the layout for the widget
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.saldo_appwidget);
 
-		// Create an Intent to launch main Saldo activity and attach an on-click listener
+		// Attach on-click listeners to buttons
+		
+		// Main Saldo activity launch button
 		Intent intent = new Intent(context, Saldo.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-		views.setOnClickPendingIntent(R.id.layout_widget_btn_open, pendingIntent);
-
-		intent = new Intent(context, WidgetUpdateService.class);
-		intent.setAction(String.valueOf(appWidgetId)); // TODO: just to make intent unique, look this over
+		views.setOnClickPendingIntent(R.id.layout_widget_launcher, pendingIntent);
+		
+		// Update button
+		Uri uri = WidgetService.createUri(appWidgetId);
+		intent = new Intent(context, WidgetService.class);
+		intent.setAction(WidgetService.ACTION_UPDATE);
+		intent.setData(uri);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.layout_widget_btn_update, pendingIntent);
-
+		// Next account button
+		intent = new Intent(context, WidgetService.class);
+		intent.setAction(WidgetService.ACTION_NEXT_ACCOUNT);
+		intent.setData(uri);
+		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+		pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		views.setOnClickPendingIntent(R.id.widget_arrow_up_btn, pendingIntent);
+		// Previous account button
+		intent = new Intent(context, WidgetService.class);
+		intent.setAction(WidgetService.ACTION_PREVIOUS_ACCOUNT);
+		intent.setData(uri);
+		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+		pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		views.setOnClickPendingIntent(R.id.widget_arrow_down_btn, pendingIntent);
+		
+		//pager info
+		views.setTextViewText(R.id.layout_widget_pager, String.format("%s/%s", currentAccountIndex + 1, noOfAccounts));
+		
 		// Update widget info from db if it exists
 		Log.d(TAG, "getting account from db");
 		DatabaseAdapter dbAdapter = new DatabaseAdapter(context);
@@ -114,7 +159,15 @@ public class SaldoWidgetProvider extends AppWidgetProvider {
 			dbAdapter.open();
 			Account account = dbAdapter.fetchAccount(accountId);
 			if (account != null) {
-				views.setTextViewText(R.id.layout_widget_text, Util.toCurrencyString(account.getBalance()));
+				StringBuilder accountName = new StringBuilder();
+				BankLogin bankLogin = dbAdapter.fetchBankLogin(account.getBankLoginId());
+				if (bankLogin != null) {
+					accountName.append(bankLogin.getName());
+					accountName.append(": ");
+				}
+				accountName.append(account.getName());
+				views.setTextViewText(R.id.layout_widget_account, accountName.toString());
+				views.setTextViewText(R.id.layout_widget_balance, Util.toCurrencyString(account.getBalance()));
 				Log.d(TAG, "widget balance set from db: " + account.getBalance());
 			}
 		} catch (SQLException e) {
@@ -135,6 +188,7 @@ public class SaldoWidgetProvider extends AppWidgetProvider {
 		for (int i = 0; i < N; i++) {
 			Log.d(TAG, "widget " + i + "deleted");
 			WidgetConfigurationActivity.deleteAccountIdPref(context, i);
+			WidgetConfigurationActivity.deleteAccountIdsPref(context, i);
 		}
 	}
 

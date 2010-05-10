@@ -36,6 +36,7 @@ import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.database.SQLException;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
@@ -51,10 +52,12 @@ import java.util.Map;
  * @author Kristian Adrup
  *
  */
-public class WidgetUpdateService extends Service {
+public class WidgetService extends Service {
 	private static final String TAG = "WidgetUpdateService";
+	public static final String ACTION_UPDATE = "com.adrup.saldo.widget.intent.action.UPDATE";
+	public static final String ACTION_NEXT_ACCOUNT = "com.adrup.saldo.widget.intent.action.NEXT_ACCOUNT";
+	public static final String ACTION_PREVIOUS_ACCOUNT = "com.adrup.saldo.widget.intent.action.PREVIOUS_ACCOUNT";
 	public static final String UPDATE_INTENT_EXTRA_ACCOUNT_ID = "com.adrup.saldo.account_id";
-	//public static final String UPDATE_INTENT_EXTRA_WIDGET_ID = "com.adrup.saldo.widget_id";
 	
 	private int appWidgetId;
 	
@@ -67,14 +70,21 @@ public class WidgetUpdateService extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		Log.d(TAG, "-> onStart()");
-		
 		appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 		if (appWidgetId == -1) {
 			Log.e(TAG, "No appWidgetId.. that's unpossible!");
 			return;
 		}
 		Log.d(TAG, "appWidgetId: " + appWidgetId);
-		new UpdateTask().execute();
+		
+		String action = intent.getAction();
+		if (ACTION_UPDATE.equals(action)) {
+			new UpdateTask().execute();
+		} else if (ACTION_NEXT_ACCOUNT.equals(action)) {
+			pageAccount(true);
+		} else if (ACTION_PREVIOUS_ACCOUNT.equals(action)) {
+			pageAccount(false);
+		}
 		Log.d(TAG, "<- onStart()");
 	}
 
@@ -89,6 +99,45 @@ public class WidgetUpdateService extends Service {
 		Log.d(TAG, "onDestroy()");
 	}
 
+	private void pageAccount(boolean forward) {
+		int currentAccountId = WidgetConfigurationActivity.loadAccountIdPref(WidgetService.this, appWidgetId);
+		if (currentAccountId == -1) {
+			Log.e(TAG, "No currentAccountId");
+			return;
+		}
+		String accounts = WidgetConfigurationActivity.loadAccountIdsPref(WidgetService.this, appWidgetId);
+		if (accounts == null) {
+			Log.e(TAG, "No accounts");
+			return;
+		}
+		String[] accountarr = accounts.split(",");
+		int currIndex = -1;
+		int newIndex = 0;
+		int noOfAccounts = accountarr.length;
+		for (int i = 0; i < noOfAccounts; i++) {
+			if (accountarr[i].equals(String.valueOf(currentAccountId))) {
+				currIndex = i;
+				break;
+			}
+		}
+		if (currIndex == -1) {
+			Log.d(TAG, "Unknown currIndex, starting over");
+			newIndex = 0;
+		} else if (forward) {
+			if (currIndex == noOfAccounts - 1) newIndex = 0;
+			else newIndex = currIndex + 1;
+		} else {
+			if (currIndex == 0) newIndex = noOfAccounts - 1;
+			else newIndex = currIndex - 1;
+		}
+		int newAccountId = Integer.parseInt(accountarr[newIndex]);
+		WidgetConfigurationActivity.saveAccountIdPref(this, appWidgetId, newAccountId);
+		
+		RemoteViews views = SaldoWidgetProvider.buildUpdate(WidgetService.this, appWidgetId, newAccountId, newIndex, noOfAccounts, true);
+		AppWidgetManager widgetManager = AppWidgetManager.getInstance(WidgetService.this);
+		widgetManager.updateAppWidget(appWidgetId, views);
+	}
+	
 	private class UpdateTask extends AsyncTask<Void, String, Void> {
 		private static final String TAG = "WidgetUpdateService.UpdateTask";
 
@@ -107,7 +156,7 @@ public class WidgetUpdateService extends Service {
 		@Override
 		protected void onProgressUpdate(String... progress) {
 			Log.d(TAG, "onProgressUpdate: " + progress[0]);
-			Toast.makeText(WidgetUpdateService.this, progress[0], Toast.LENGTH_LONG).show();
+			Toast.makeText(WidgetService.this, progress[0], Toast.LENGTH_LONG).show();
 		}
 
 		@Override
@@ -117,14 +166,14 @@ public class WidgetUpdateService extends Service {
 		
 		private void run() {
 			
-			int accountId = WidgetConfigurationActivity.loadAccountIdPref(WidgetUpdateService.this, appWidgetId);
+			int accountId = WidgetConfigurationActivity.loadAccountIdPref(WidgetService.this, appWidgetId);
 			if (accountId == -1) {
 				publishProgress("No accountId.. that's unpossible!");
 				Log.e(TAG, "No accountId.. that's unpossible!");
 				return;
 			}
 			
-			DatabaseAdapter dbAdapter = new DatabaseAdapter(WidgetUpdateService.this);
+			DatabaseAdapter dbAdapter = new DatabaseAdapter(WidgetService.this);
 			dbAdapter.open();
 			Account dbAccount = dbAdapter.fetchAccount(accountId);
 			BankLogin bankLogin = dbAdapter.fetchBankLogin(dbAccount.getBankLoginId());
@@ -136,8 +185,8 @@ public class WidgetUpdateService extends Service {
 				e1.printStackTrace();
 			}
 						
-			RemoteViews views = SaldoWidgetProvider.buildUpdate(WidgetUpdateService.this, appWidgetId, accountId, true);
-			AppWidgetManager widgetManager = AppWidgetManager.getInstance(WidgetUpdateService.this);
+			RemoteViews views = SaldoWidgetProvider.buildUpdate(WidgetService.this, appWidgetId, accountId, true);
+			AppWidgetManager widgetManager = AppWidgetManager.getInstance(WidgetService.this);
 			views.setViewVisibility(R.id.layout_widget_progress, View.VISIBLE);
 			widgetManager.updateAppWidget(appWidgetId, views);
 			try {
@@ -162,7 +211,7 @@ public class WidgetUpdateService extends Service {
 				//Get previous balance from db
 				long prevBalance = 0;
 				Log.d(TAG, "getting account from db");
-				dbAdapter = new DatabaseAdapter(WidgetUpdateService.this);
+				dbAdapter = new DatabaseAdapter(WidgetService.this);
 				
 				try {
 					dbAdapter.open();
@@ -183,20 +232,26 @@ public class WidgetUpdateService extends Service {
 
 				int steps = 20; // number of balance animation steps
 				long diff = newBalance - prevBalance;
-				long inc = NumberUtil.roundToSignificantFigures(diff / steps, 1);
-				Log.d(TAG, "inc= " + inc);
-				long tempBalance = prevBalance + inc;
-				int i = 1;
-				while (diff > 0 ? tempBalance < newBalance : tempBalance > newBalance) {
-					Log.d(TAG, "tempBalance(" + i + ")= " + tempBalance);
-					i++;
-					views.setTextViewText(R.id.layout_widget_text, Util.toCurrencyString(tempBalance));
-					widgetManager.updateAppWidget(appWidgetId, views);
-					tempBalance += inc;
-				}
-				// set final balance
-				Log.d(TAG, "final Balance= " + newBalance);
-				views.setTextViewText(R.id.layout_widget_text, Util.toCurrencyString(newBalance));
+				
+				if (diff != 0) {
+					long inc = NumberUtil.roundToSignificantFigures(diff / steps, 1);
+					if (inc == 0) inc = 1;
+					Log.d(TAG, "inc= " + inc);
+					long tempBalance = prevBalance + inc;
+					int i = 1;
+					while (diff > 0 ? tempBalance < newBalance : tempBalance > newBalance) {
+						Log.d(TAG, "tempBalance(" + i + ")= " + tempBalance);
+						i++;
+						views.setTextViewText(R.id.layout_widget_balance, Util.toCurrencyString(tempBalance));
+						widgetManager.updateAppWidget(appWidgetId, views);
+						tempBalance += inc;
+					}
+					// set final balance
+					Log.d(TAG, "final Balance= " + newBalance);
+					views.setTextViewText(R.id.layout_widget_balance, Util.toCurrencyString(newBalance));
+					// Set back current accountId if someone changed it with arrow keys during update
+					WidgetConfigurationActivity.saveAccountIdPref(WidgetService.this, appWidgetId, accountId);
+				} else Log.d(TAG, "no balance change");
 				// Hide progress bar
 				views.setViewVisibility(R.id.layout_widget_progress, View.GONE);
 				widgetManager.updateAppWidget(appWidgetId, views);
@@ -204,7 +259,7 @@ public class WidgetUpdateService extends Service {
 
 				Log.d(TAG, "writing accounts to db");
 				// Save accounts to database..
-				dbAdapter = new DatabaseAdapter(WidgetUpdateService.this);
+				dbAdapter = new DatabaseAdapter(WidgetService.this);
 				try {
 					dbAdapter.open();
 					for (Account acc : accounts.values()) {
@@ -232,5 +287,8 @@ public class WidgetUpdateService extends Service {
 			}
 			
 		}
+	}
+	public static Uri createUri(int appWidgetId) {
+		return Uri.parse("saldo://widget/?appwidget_id=" + appWidgetId);
 	}
 }

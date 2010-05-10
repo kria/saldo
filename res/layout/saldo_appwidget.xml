@@ -1,33 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal" android:background="@drawable/widget_frame"
-	android:layout_height="fill_parent" android:layout_width="fill_parent">
-	<RelativeLayout android:layout_width="wrap_content"
-		android:layout_height="fill_parent">
-		<ImageButton android:id="@+id/layout_widget_btn_update"
-			android:layout_alignParentLeft="true" android:layout_centerVertical="true"
-			android:src="@drawable/ic_refresh"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" />
-	</RelativeLayout>
-	<RelativeLayout android:layout_height="fill_parent"
-		android:layout_width="fill_parent">
-		<Button android:layout_height="fill_parent"
-			android:layout_width="fill_parent" android:background="@null"
-			android:id="@+id/layout_widget_btn_open">
-		</Button>
-		<TextView android:id="@+id/layout_widget_text" android:text="@string/widget_text"
-			android:layout_height="fill_parent" android:layout_width="fill_parent"
-			android:gravity="center" android:textSize="25dp" android:textStyle="bold"
-			android:textColor="@android:color/white" />
-		<FrameLayout android:id="@+id/layout_widget_progress" 
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:background="@drawable/widget_frame_2x1"
+      android:padding="0px">
+
+<!-- left update button -->
+<ImageButton android:id="@+id/layout_widget_btn_update"
+			android:src="@null"
+			android:background="@drawable/widget_bg_left"
+			android:layout_width="32dp"
+			android:layout_height="fill_parent"
+			android:layout_alignParentLeft="true"/> 
+<!-- progress spinner -->
+<FrameLayout android:id="@+id/layout_widget_progress" 
 			android:layout_width="wrap_content"
         	android:layout_height="wrap_content"
-        	android:layout_alignParentRight="true"
+        	android:layout_alignParentLeft="true"
+        	android:padding="12dp"
         	android:visibility="gone">
 			<ProgressBar
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content" style="?android:attr/progressBarStyleSmall"
-				android:layout_marginTop="3dp" android:layout_marginRight="3dp" />
+				 />
 		</FrameLayout>
-	</RelativeLayout>
+<!-- middle info section -->
+<LinearLayout
+      android:orientation="vertical"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:layout_marginLeft="20dp"
+      android:layout_marginTop="20dp"
+      android:layout_marginRight="20dp"
+      android:layout_marginBottom="20dp"
+      android:layout_weight="1">
+                
+<TextView android:id="@+id/layout_widget_account" android:text=""
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:textSize="10sp"
+			android:layout_alignParentTop="true" 
+			android:gravity="center"
+			android:textColor="@android:color/white"
+			android:layout_weight="1" />
+<TextView android:id="@+id/layout_widget_balance"
+			android:text="--- kr"
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:gravity="center" android:textSize="20sp" android:textStyle="bold"
+			android:textColor="@android:color/white" 
+			android:layout_weight="2"/>
 </LinearLayout>
+
+<!-- paging arrows -->
+<LinearLayout
+      android:orientation="vertical"
+      android:layout_width="wrap_content"
+      android:layout_height="fill_parent"
+      android:layout_alignParentRight="true">
+
+<RelativeLayout
+                android:layout_height="fill_parent" 
+                android:layout_width="wrap_content"
+                android:padding="0px"
+                android:layout_weight="1">
+                <ImageButton android:id="@+id/widget_arrow_up_btn"    
+                             android:layout_height="fill_parent"
+                             android:layout_width="32dp"
+                             android:background="@drawable/widget_bg_top_right">
+				</ImageButton>
+                <ImageView 
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content" 
+                           android:background="@drawable/arrow_up" 
+                           android:layout_centerVertical="true"
+                           android:layout_marginLeft="8dp"></ImageView>
+</RelativeLayout>
+<RelativeLayout 
+                android:layout_height="fill_parent" 
+                android:layout_width="wrap_content"
+                android:padding="0px"
+                android:layout_weight="1">
+                <ImageButton android:id="@+id/widget_arrow_down_btn"    
+                             android:layout_height="fill_parent"
+                             android:layout_width="32dp"
+                             android:background="@drawable/widget_bg_bottom_right">
+				</ImageButton>
+				<ImageView 
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content" 
+                           android:background="@drawable/arrow_down" 
+                           android:layout_centerVertical="true"
+                           android:layout_marginLeft="8dp"></ImageView>
+                
+</RelativeLayout>
+
+</LinearLayout>
+
+<!-- launcher -->
+<RelativeLayout android:id="@+id/layout_widget_launcher"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:padding="0px"
+      android:layout_marginLeft="32dp"
+      android:layout_marginTop="7dp"
+      android:layout_marginRight="32dp"
+      android:layout_marginBottom="7dp">
+      
+<!-- paging info -->
+<TextView android:id="@+id/layout_widget_pager" android:text=""
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"
+			android:textSize="8sp"
+			android:padding="1dp"
+			android:layout_alignParentTop="true" 
+			android:layout_alignParentRight="true"
+			android:textColor="@android:color/white"/>
+</RelativeLayout>
+
+
+</RelativeLayout>
+

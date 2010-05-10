@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:minWidth="200dip"
-    android:orientation="vertical"
-    >
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+         android:orientation="vertical"
+         android:layout_width="fill_parent" 
+         android:layout_height="fill_parent"
+         android:minWidth="200dip"
+         android:paddingLeft="8dp"
+         android:paddingRight="8dp">
 
-    <TextView
+     <ListView android:id="@id/android:list"
+               android:layout_width="fill_parent" 
+               android:layout_height="fill_parent"
+               android:layout_weight="1"
+     />
+       <Button
+        android:id="@+id/layout_widget_config_ok_btn"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/appwidget_configure_instructions"
-    />
-
-    <EditText
-        android:id="@+id/appwidget_prefix"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-    />
-
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@android:string/ok"
-    />
-
-</LinearLayout>
+        />
+ 
+     <TextView android:id="@id/android:empty"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:padding="10dp" 
+		android:textSize="16sp" 
+		android:text="You can't add a widget without any bank accounts"
+		/>
+		
+		
+	   
+ </LinearLayout>
