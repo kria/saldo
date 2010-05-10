@@ -235,11 +235,12 @@ public class WidgetService extends Service {
 				
 				if (diff != 0) {
 					long inc = NumberUtil.roundToSignificantFigures(diff / steps, 1);
-					if (inc == 0) inc = 1;
+					if (inc == 0) inc = diff > 0 ? 1 : -1;
 					Log.d(TAG, "inc= " + inc);
 					long tempBalance = prevBalance + inc;
 					int i = 1;
-					while (diff > 0 ? tempBalance < newBalance : tempBalance > newBalance) {
+					int sanityCount = 25;
+					while (i < sanityCount && (diff > 0 ? tempBalance < newBalance : tempBalance > newBalance)) {
 						Log.d(TAG, "tempBalance(" + i + ")= " + tempBalance);
 						i++;
 						views.setTextViewText(R.id.layout_widget_balance, Util.toCurrencyString(tempBalance));
