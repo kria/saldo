@@ -177,7 +177,7 @@ public class DatabaseAdapter {
 		Log.d(TAG, "fetchAllAccountsCursor()");
 		return mDb.query(Account.DATABASE_TABLE, new String[] { Account.KEY_ID, Account.KEY_REMOTE_ID,
 				Account.KEY_BANK_LOGIN_ID, Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, null, null,
-				null, null, null);
+				null, null, Account.KEY_BANK_LOGIN_ID + "," + Account.KEY_REMOTE_ID);
 	}
 	
 	public Map<AccountHashKey, Account> fetchAllAccountsMap() {

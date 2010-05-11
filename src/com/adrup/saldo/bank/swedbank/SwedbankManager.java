@@ -35,6 +35,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.text.Html;
 import android.util.Log;
 
 import java.io.IOException;
@@ -66,8 +67,8 @@ public class SwedbankManager implements BankManager {
 	private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.5; en-se; HTC Hero Build/CUPCAKE) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1";
 	private static final String TOKEN_REGEX = "_csrf_token\"\\s+value=\"([^\"]+)\"";
 	private static final String ACCOUNTS_REGEX = 
-		"<a accesskey=\"\\d+\" href=\"/banking/swedbank/account\\.html\\?id=(\\d+)\">\\s*" +
-		"<span class=\"icon\">&nbsp;(\\d+)&nbsp;</span>([^<]+)<br/><span class=\"secondary\">([\\d ]+)</span>";
+		"<a accesskey=\"\\d+\" href=\"/banking/swedbank/(account|loan)\\.html\\?id=(\\d+)\">\\s*" +
+		"<span class=\"icon\">&nbsp;(\\d+)&nbsp;</span>([^<]+)<br/><span class=\"secondary\">([\\d -]+)</span>";
 
 	private BankLogin bankLogin;
 	
@@ -135,16 +136,17 @@ public class SwedbankManager implements BankManager {
 
 			while (matcher.find()) {
 				int groupCount = matcher.groupCount();
-				if (groupCount < 4) {
-					throw new SwedbankException("Pattern match issue: groupCount < 4");
+				if (groupCount < 5) {
+					throw new SwedbankException("Pattern match issue: groupCount < 5");
 				}
 				for (int i = 1; i <= groupCount; i++) {
 					Log.d(TAG, i + ":" + matcher.group(i));
 				}
-				int remoteId = Integer.parseInt(matcher.group(1));
-				int ordinal = Integer.parseInt(matcher.group(2));
-				String name = matcher.group(3);
-				long balance = Long.parseLong(matcher.group(4).replaceAll(" ", ""));
+				String accountType = matcher.group(1);
+				int remoteId = Integer.parseInt(matcher.group(2));
+				int ordinal = Integer.parseInt(matcher.group(3));
+				String name = Html.fromHtml(matcher.group(4)).toString();
+				long balance = Long.parseLong(matcher.group(5).replaceAll(" ", ""));
 				accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
 			}
 
