@@ -65,7 +65,7 @@ public class SwedbankManager implements BankManager {
 	private static final String PASS_PARAM = "zyx";
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.5; en-se; HTC Hero Build/CUPCAKE) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1";
-	private static final String TOKEN_REGEX = "_csrf_token\"\\s+value=\"([^\"]+)\"";
+	private static final String TOKEN_REGEX = "_csrf_token\"[^>]+value=\"([^\"]+)\"";
 	private static final String ACCOUNTS_REGEX = 
 		"<a accesskey=\"\\d+\" href=\"/banking/swedbank/(account|loan)\\.html\\?id=(\\d+)\">\\s*" +
 		"<span class=\"icon\">&nbsp;(\\d+)&nbsp;</span>([^<]+)<br/><span class=\"secondary\">([\\d -]+)</span>";
