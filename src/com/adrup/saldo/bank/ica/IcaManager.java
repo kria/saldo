@@ -70,7 +70,7 @@ public class IcaManager implements BankManager {
 	private static final String VIEWSTATE_PARAM = "__VIEWSTATE";
 
 	private static final String VIEWSTATE_REGEX = "id=\"__VIEWSTATE\"\\s+value=\"([^\"]+)\"";
-	private static final String ACCOUNTS_REGEX = "<tr>\\s*<th>\\s*([^<]+):\\s*</th>\\s*<td\\s+class=\"amount\">\\s*<span[^>]*>([\\d -,]+) kr</span>";
+	private static final String ACCOUNTS_REGEX = "<tr>\\s*<th>\\s*([^<]+):\\s*</th>\\s*<td\\s+class=\"amount\">\\s*<span[^>]*>([\\d -\\.,]+) kr</span>";
 
 	private BankLogin mBankLogin;
 	private Context mContext;
