@@ -21,8 +21,8 @@
 
 package com.adrup.saldo.bank.nordea;
 
-import com.adrup.http.HTTPException;
-import com.adrup.http.HTTPHelper;
+import com.adrup.http.HttpException;
+import com.adrup.http.HttpHelper;
 import com.adrup.saldo.Account;
 import com.adrup.saldo.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
@@ -121,7 +121,7 @@ public class NordeaManager implements BankManager {
             parameters.add(new BasicNameValuePair(CHECKCODE_PARAM, Integer.toString(((int) (System.currentTimeMillis() / 1000L)))+"123"));
 
             Log.d(TAG, "logging in...");
-            String res = HTTPHelper.post(httpClient, LOGIN_URL, parameters);
+            String res = HttpHelper.post(httpClient, LOGIN_URL, parameters);
             
             //TODO: use regexp to grab swedbank err text
             if (res.contains("Tekniskt fel")) {
@@ -132,7 +132,7 @@ public class NordeaManager implements BankManager {
             
             //ACCOUNTS
             Log.d(TAG, "getting account info...");
-            res = HTTPHelper.get(httpClient, ACCOUNTS_URL);
+            res = HttpHelper.get(httpClient, ACCOUNTS_URL);
             //Log.d(TAG, "accounts html dump:");
             //Log.d(TAG, res);
             Pattern pattern = Pattern.compile(ACCOUNTS_REGEX);
@@ -152,7 +152,7 @@ public class NordeaManager implements BankManager {
             
             //CREDIT CARDS
             Log.d(TAG, "getting account info...");
-            String res2 = HTTPHelper.get(httpClient, CREDITS_URL);
+            String res2 = HttpHelper.get(httpClient, CREDITS_URL);
             Log.d(TAG, "accounts html dump:");
             Log.d(TAG, res);
             pattern = Pattern.compile(CREDITS_REGEX);
@@ -190,7 +190,7 @@ public class NordeaManager implements BankManager {
             Log.e(TAG, e.getMessage(), e);
             throw new NordeaException(e.getMessage(), e);
 
-        } catch (HTTPException e) {
+        } catch (HttpException e) {
             Log.e(TAG, e.getMessage(), e);
             throw new NordeaException(e.getMessage(), e);
         }

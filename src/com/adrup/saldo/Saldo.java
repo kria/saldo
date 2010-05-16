@@ -25,6 +25,7 @@ import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
 import com.adrup.saldo.bank.BankManagerFactory;
+import com.adrup.util.SectionedAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,6 +44,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -61,8 +63,19 @@ import java.util.Map;
 public class Saldo extends Activity {
 	private static final String TAG = "Saldo";
 	static final int DIALOG_ABOUT_ID = 0;
-	private Cursor mCursor = null;
+	//private Cursor mCursor = null;
 	private DatabaseAdapter mDbAdapter;
+
+	SectionedAdapter mSectionedAdapter = new SectionedAdapter() {
+		protected View getHeaderView(String caption, int index, View convertView, ViewGroup parent) {
+			TextView result = (TextView) convertView;
+			if (convertView == null) {
+				result = (TextView) getLayoutInflater().inflate(R.layout.header, null);
+			}
+			result.setText(caption);
+			return (result);
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,46 +90,62 @@ public class Saldo extends Activity {
 			}
 		});
 
-		// set uop cursor
+		// set up cursor
 		mDbAdapter = new DatabaseAdapter(this);
+		mDbAdapter.open();
+		
+		loadAccountsList();
+	}
+	
+	private void loadAccountsList() {
+		// TODO: not done..
 		try {
-			mDbAdapter.open();
-
-			mCursor = mDbAdapter.fetchAllAccountsCursor();
-			startManagingCursor(mCursor);
-
-			// Now create a new list adapter bound to the cursor.
-			// SimpleListAdapter is designed for binding to a Cursor.
-			SimpleCursorAdapter adapter = new SimpleCursorAdapter(Saldo.this, // Context.
-					R.layout.widget_config_list_item, // Specify the row template to use (here, two columns bound to the
-														// two
-					// retrieved cursor rows).
-					mCursor, // Pass in the cursor to bind to.
-					new String[] { Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, // Array of cursor
-																									// columns
-					// to bind to.
-					new int[] { R.id.layout_widget_config_ordinal, R.id.layout_widget_config_name,
-							R.id.layout_widget_config_balance }); // Parallel array of which template objects to bind to
-			// those columns.
-
-			adapter.setViewBinder(new AccountsViewBinder());
-			// Bind to our new adapter.
+			List<BankLogin> bankLogins = mDbAdapter.fetchAllBankLogins();
+			View instructions = findViewById(R.id.layout_main_instructions);
+			if (bankLogins.isEmpty()) instructions.setVisibility(View.VISIBLE);
+			else instructions.setVisibility(View.GONE);
+			
+			mSectionedAdapter.clear();
+			
+			for (BankLogin bankLogin : bankLogins) {
+				Cursor cursor = mDbAdapter.fetchAccountsCursor(bankLogin.getId());
+				Log.d(TAG, "cursor.getCount: " + cursor.getCount());
+				startManagingCursor(cursor);
+				mSectionedAdapter.addSection(bankLogin.getName(), createAccountsAdapter(cursor));
+			}
+			
 			ListView myList = (ListView) findViewById(R.id.layout_main_accounts);
-			myList.setAdapter(adapter);
-
+			myList.setAdapter(mSectionedAdapter);
 		} catch (SQLException e) {
-			Log.e(TAG, "SQLException in onCreate()", e);
+			Log.e(TAG, "SQLException in loadAccountsList()", e);
 		} catch (Exception e) {
-			Log.e(TAG, "Exception in onCreate()", e);
-		} finally {
-			// dbAdapter.close();
+			Log.e(TAG, "Exception in loadAccountsList()", e);
 		}
+	}
+	
+	private SimpleCursorAdapter createAccountsAdapter(Cursor cursor) {
+		
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(Saldo.this, // Context.
+				R.layout.widget_config_list_item, // Specify the row template to use (here, two columns bound to the
+													// two
+				// retrieved cursor rows).
+				cursor, // Pass in the cursor to bind to.
+				new String[] { Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, // Array of cursor
+																								// columns
+				// to bind to.
+				new int[] { R.id.layout_widget_config_ordinal, R.id.layout_widget_config_name,
+						R.id.layout_widget_config_balance }); // Parallel array of which template objects to bind to
+		// those columns.
+		adapter.setViewBinder(new AccountsViewBinder());
+		
+		return adapter;
 	}
 
 	@Override
 	protected void onResume() {
 		Log.d(TAG, "onResume()");
 		super.onResume();
+		loadAccountsList();
 	}
 
 	@Override
@@ -181,7 +210,7 @@ public class Saldo extends Activity {
 			LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.about, null);
 			TextView version = (TextView) layout.findViewById(R.id.layout_about_version);
-			version.setText(getString(R.string.version, getVersionName()));
+			version.setText(getString(R.string.version, Saldo.getVersionName(this)));
 			builder = new AlertDialog.Builder(mContext);
 			builder.setView(layout);
 			alertDialog = builder.create();
@@ -195,20 +224,20 @@ public class Saldo extends Activity {
 		return dialog;
 	}
 
+
 	/**
 	 * Get the version name for the application
 	 * 
 	 * @return version name as String
 	 */
-	public String getVersionName() {
+	public static String getVersionName(Context context) {
 		PackageInfo pinfo;
 		try {
-			pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			return pinfo.versionName;
 		} catch (NameNotFoundException e) {
 			return null;
 		}
-
 	}
 
 	private class UpdateAccountsTask extends AsyncTask<Void, String, Map<AccountHashKey, Account>> {
@@ -238,7 +267,7 @@ public class Saldo extends Activity {
 
 			for (BankLogin bankLogin : bankLogins) {
 				try {
-					BankManager bankManager = BankManagerFactory.createBankManager(bankLogin);
+					BankManager bankManager = BankManagerFactory.createBankManager(Saldo.this, bankLogin);
 					String msg = String.format("Fetching accounts from %s.", bankLogin.getName());
 					Log.d(TAG, msg);
 					publishProgress(msg);
@@ -290,7 +319,8 @@ public class Saldo extends Activity {
 				}
 				Log.d(TAG, "db updated");
 
-				mCursor.requery();
+				//mCursor.requery();
+				loadAccountsList();
 
 			} catch (SQLException e) {
 				Log.e(TAG, "SQLException in onPostExecute()", e);

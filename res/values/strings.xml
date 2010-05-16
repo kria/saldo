@@ -2,11 +2,12 @@
 <resources>
     <string name="app_name">Saldo</string>
     <string name="app_author">Kristian Adrup</string>
-    
     <string name="version">Version %s</string>
     <string name="by">by Kristian Adrup 2010</string>
     <string name="url_project">http://github.com/kria/saldo</string>
     <string name="disclaimer">This application is unofficial and not supported by Swedbank.</string>
+    
+    <string name="web_user_agent">Saldo/%s (Linux; U; Android %s) Apache-HttpClient/4.0</string>
     
     <string name="main_instructions">Set user/password in the settings menu and then hit refresh.</string>
     <string name="refresh">Refresh</string>
@@ -35,6 +36,8 @@
     <string-array name="banks_array">
         <item>Swedbank</item>
         <item>Nordea</item>
+        <item>Länsförsäkringar Bank</item>
+        <item>ICA</item>
     </string-array>
     
     <string-array name="update_interval_array">

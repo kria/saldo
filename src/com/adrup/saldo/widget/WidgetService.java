@@ -179,7 +179,7 @@ public class WidgetService extends Service {
 			BankLogin bankLogin = dbAdapter.fetchBankLogin(dbAccount.getBankLoginId());
 			BankManager bankManager = null;
 			try {
-				bankManager = BankManagerFactory.createBankManager(bankLogin);
+				bankManager = BankManagerFactory.createBankManager(WidgetService.this, bankLogin);
 			} catch (BankException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

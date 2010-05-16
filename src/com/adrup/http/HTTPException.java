@@ -21,11 +21,11 @@
 
 package com.adrup.http;
 
-public class HTTPException extends Exception {
+public class HttpException extends Exception {
 	private static final long serialVersionUID = 1L;
 	private int statusCode;
 
-	public HTTPException(int statusCode, String message) {
+	public HttpException(int statusCode, String message) {
 		super("HTTP status code: " + statusCode + ", " + message);
 		this.statusCode = statusCode;
 	}

@@ -21,8 +21,8 @@
 
 package com.adrup.saldo.bank.swedbank;
 
-import com.adrup.http.HTTPException;
-import com.adrup.http.HTTPHelper;
+import com.adrup.http.HttpException;
+import com.adrup.http.HttpHelper;
 import com.adrup.saldo.Account;
 import com.adrup.saldo.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
@@ -101,7 +101,7 @@ public class SwedbankManager implements BankManager {
 		try {
 			// First get token
 			Log.d(TAG, "getting token...");
-			String res = HTTPHelper.get(httpClient, LOGIN_URL);
+			String res = HttpHelper.get(httpClient, LOGIN_URL);
 			Pattern pattern = Pattern.compile(TOKEN_REGEX);
 			Matcher matcher = pattern.matcher(res);
 			if (!matcher.find()) {
@@ -118,7 +118,7 @@ public class SwedbankManager implements BankManager {
 			parameters.add(new BasicNameValuePair(PASS_PARAM, bankLogin.getPassword()));
 
 			Log.d(TAG, "logging in...");
-			res = HTTPHelper.post(httpClient, LOGIN_URL, parameters);
+			res = HttpHelper.post(httpClient, LOGIN_URL, parameters);
 			
 			//TODO: use regexp to grab swedbank err text
 			if (res.contains("section error")) {
@@ -128,7 +128,7 @@ public class SwedbankManager implements BankManager {
 
 			// Now we should be logged in with a cookie set, let's get accounts info
 			Log.d(TAG, "getting account info...");
-			res = HTTPHelper.get(httpClient, ACCOUNTS_URL);
+			res = HttpHelper.get(httpClient, ACCOUNTS_URL);
 			//Log.d(TAG, "accounts html dump:");
 			//Log.d(TAG, res);
 			pattern = Pattern.compile(ACCOUNTS_REGEX);
@@ -154,7 +154,7 @@ public class SwedbankManager implements BankManager {
 			Log.e(TAG, e.getMessage(), e);
 			throw new SwedbankException(e.getMessage(), e);
 
-		} catch (HTTPException e) {
+		} catch (HttpException e) {
 			Log.e(TAG, e.getMessage(), e);
 			throw new SwedbankException(e.getMessage(), e);
 		}

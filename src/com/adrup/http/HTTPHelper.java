@@ -21,23 +21,20 @@
 
 package com.adrup.http;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 
-import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -46,61 +43,38 @@ import java.util.List;
  * @author Kristian Adrup
  *
  */
-public class HTTPHelper {
-	private static final String TAG = "HTTPHelper";
+public class HttpHelper {
+	private static final String TAG = "HttpHelper";
 
-	private static byte[] sBuffer = new byte[1024];
-
-	public static String get(HttpClient httpClient, String url) throws IOException, HTTPException {
+	public static String get(HttpClient httpClient, String url) throws IOException, HttpException {
 		HttpGet request = new HttpGet(url);
-		return doRequest(httpClient, request, url, true);
+		return doRequest(httpClient, request, url, new BasicHttpContext(), true);
+	}
+	public static String get(HttpClient httpClient, String url, HttpContext context) throws IOException, HttpException {
+		HttpGet request = new HttpGet(url);
+		return doRequest(httpClient, request, url, context, true);
 	}
 
 	public static String post(HttpClient httpClient, String url, List<? extends NameValuePair> parameters)
-			throws IOException, HTTPException {
+			throws IOException, HttpException {
 		return post(httpClient, url, parameters, true);
 	}
 
 	public static String post(HttpClient httpClient, String url, List<? extends NameValuePair> parameters,
-			boolean readResponse) throws IOException, HTTPException {
+			boolean readResponse) throws IOException, HttpException {
 		HttpPost request = new HttpPost(url);
-		request.setEntity(new UrlEncodedFormEntity(parameters));
-		return doRequest(httpClient, request, url, readResponse);
+		request.setEntity(new UrlEncodedFormEntity(parameters, HTTP.UTF_8));
+		return doRequest(httpClient, request, url, new BasicHttpContext(), readResponse);
 	}
 
-	private static synchronized String doRequest(HttpClient httpClient, HttpUriRequest request, String url,
-			boolean readResponse) throws IOException, HTTPException {
-		Log.d(TAG, "doRequest()");
+	private static String doRequest(HttpClient httpClient, HttpUriRequest request, String url,
+			HttpContext context, boolean readResponse) throws IOException, HttpException {
 		if (httpClient == null)
 			httpClient = new DefaultHttpClient();
-
-		HttpResponse response = httpClient.execute(request);
-
-		// Check if server response is valid
-		StatusLine status = response.getStatusLine();
-		int statusCode = status.getStatusCode();
-		if (statusCode != HttpStatus.SC_OK) {
-			throw new HTTPException(statusCode, status.toString());
-		}
-
-		if (!readResponse)
-			return null;
-
-		// Pull content stream from response
-		HttpEntity entity = response.getEntity();
-		InputStream in = entity.getContent();
-
-		ByteArrayOutputStream content = new ByteArrayOutputStream();
-
-		// Read response into a buffered stream
-		int readBytes = 0;
-		while ((readBytes = in.read(sBuffer)) != -1) {
-			content.write(sBuffer, 0, readBytes);
-		}
-
-		// Return result from buffered stream
-		return new String(content.toByteArray());
-
-		// dispose of in perhaps?
+		
+		ResponseHandler<String> responseHandler = new BasicResponseHandler();
+		String response = httpClient.execute(request, responseHandler, context);
+		
+		return response;
 	}
 }

@@ -21,8 +21,12 @@
 
 package com.adrup.saldo.bank;
 
+import com.adrup.saldo.bank.ica.IcaManager;
+import com.adrup.saldo.bank.lf.LfBankManager;
 import com.adrup.saldo.bank.nordea.NordeaManager;
 import com.adrup.saldo.bank.swedbank.SwedbankManager;
+
+import android.content.Context;
 
 /**
  * A {@link BankManager} factory.
@@ -40,13 +44,17 @@ public class BankManagerFactory {
 	 * @return a {@link BankManager}
 	 * @throws BankException
 	 */
-	public static BankManager createBankManager(BankLogin bankLogin) throws BankException {
+	public static BankManager createBankManager(Context context, BankLogin bankLogin) throws BankException {
 		switch (bankLogin.getBankId()) {
 
 		case BankManager.SWEDBANK:
 			return new SwedbankManager(bankLogin);
 		case BankManager.NORDEA:
 			return new NordeaManager(bankLogin);
+		case BankManager.LANSFORSAKRINGAR:
+			return new LfBankManager(bankLogin, context);
+		case BankManager.ICA:
+			return new IcaManager(bankLogin, context);
 		default:
 			throw new BankException("Illegal Bank type.");
 		}

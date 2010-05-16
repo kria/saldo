@@ -111,7 +111,7 @@ public class AutoUpdateService extends Service {
 				List<BankLogin> bankLogins = dbAdapter.fetchAllBankLogins();
 				for (BankLogin bankLogin : bankLogins) {
 					try {
-						BankManager bankManager = BankManagerFactory.createBankManager(bankLogin);
+						BankManager bankManager = BankManagerFactory.createBankManager(AutoUpdateService.this, bankLogin);
 						bankManager.getAccounts(remoteAccounts);
 
 						for (Account acc : remoteAccounts.values()) {

@@ -180,6 +180,19 @@ public class DatabaseAdapter {
 				null, null, Account.KEY_BANK_LOGIN_ID + "," + Account.KEY_REMOTE_ID);
 	}
 	
+	/**
+	 * Return a Cursor over the list of all accounts for a bankLogin in the database
+	 * 
+	 * @return Cursor over accounts
+	 */
+	public Cursor fetchAccountsCursor(int bankLoginId) {
+		Log.d(TAG, "fetchAllAccountsCursor()");
+		return mDb.query(Account.DATABASE_TABLE, new String[] { Account.KEY_ID, Account.KEY_REMOTE_ID,
+				Account.KEY_BANK_LOGIN_ID, Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, 
+				Account.KEY_BANK_LOGIN_ID + "=" + bankLoginId, null,
+				null, null, Account.KEY_REMOTE_ID);
+	}
+	
 	public Map<AccountHashKey, Account> fetchAllAccountsMap() {
 		Log.d(TAG, "fetchAllBankLogins()");
 		Cursor cursor = fetchAllAccountsCursor();
