@@ -25,6 +25,7 @@ import com.adrup.saldo.bank.ica.IcaManager;
 import com.adrup.saldo.bank.lf.LfBankManager;
 import com.adrup.saldo.bank.nordea.NordeaManager;
 import com.adrup.saldo.bank.swedbank.SwedbankManager;
+import com.adrup.saldo.bank.icabanken.IcabankenManager;
 
 import android.content.Context;
 
@@ -55,6 +56,8 @@ public class BankManagerFactory {
 			return new LfBankManager(bankLogin, context);
 		case BankManager.ICA:
 			return new IcaManager(bankLogin, context);
+		case BankManager.ICABANKEN:
+			return new IcabankenManager(bankLogin, context);
 		default:
 			throw new BankException("Illegal Bank type.");
 		}

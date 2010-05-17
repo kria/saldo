@@ -38,6 +38,7 @@ public interface BankManager {
 	public final static int NORDEA = 2;
 	public final static int LANSFORSAKRINGAR = 3;
 	public final static int ICA = 4;
+	public final static int ICABANKEN = 5;
 
 	public String getName();
 

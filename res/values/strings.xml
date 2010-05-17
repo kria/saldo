@@ -38,6 +38,7 @@
         <item>Nordea</item>
         <item>Länsförsäkringar Bank</item>
         <item>ICA</item>
+        <item>ICA Banken</item>
     </string-array>
     
     <string-array name="update_interval_array">
