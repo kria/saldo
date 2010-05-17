@@ -27,14 +27,14 @@
 	<EditText android:id="@+id/layout_bankloginedit_username"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
-		android:inputType="numberSigned" />
+		android:inputType="text" />
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
 		android:text="Password" />
 	<EditText android:id="@+id/layout_bankloginedit_password"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
-		android:inputType="textPassword" />
+		android:inputType="textPassword" android:bufferType="spannable"/>
 	<LinearLayout
 		android:orientation="horizontal" 
 		android:layout_width="fill_parent"
