@@ -162,14 +162,7 @@ public class IcabankenManager implements BankManager {
 			int count = 0;
 			while (matcher.find()) {
 				count++;
-				/*int groupCount = matcher.groupCount();
-				for (int i = 1; i <= groupCount; i++) {
-					Log.d(TAG, i + ":" + matcher.group(i));
-				}
-				if (groupCount < 2) {
-					throw new BankException("Pattern match issue: groupCount < 2");
-				}*/
-
+				
 				int ordinal = remoteId;
 				String name = Html.fromHtml(matcher.group(2)).toString().trim();
 				long balance = Long.parseLong(matcher.group(3).replaceAll("\\,|\\.| ", "")) / 100;

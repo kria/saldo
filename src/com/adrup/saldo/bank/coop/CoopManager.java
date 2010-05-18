@@ -54,7 +54,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A ICA implementation of {@link BankManager}.
+ * A coop implementation of {@link BankManager}.
  * 
  * @author Kristian Adrup
  * 
@@ -64,14 +64,13 @@ public class CoopManager implements BankManager {
 	private static final String NAME = "coop";
 	private static final String LOGIN_URL = "https://www.coop.se/Mina-sidor/Oversikt/";
 	private static final String ACCOUNT_URL = "https://www.coop.se/Mina-sidor/Oversikt/?t=MedMeraAccount";
+	private static final String CREDIT_URL = "https://www.coop.se/Mina-sidor/Oversikt/?t=MedMeraVisa";
 	private static final String USER_PARAM = "ctl00$ContentPlaceHolderMainPageContainer$ContentPlaceHolderPreContent$RegisterMediumUserForm$TextBoxUserName";
 	private static final String PASS_PARAM = "ctl00$ContentPlaceHolderMainPageContainer$ContentPlaceHolderPreContent$RegisterMediumUserForm$TextBoxPassword";
 	private static final String BUTTON_PARAM = "ctl00$ContentPlaceHolderMainPageContainer$ContentPlaceHolderPreContent$RegisterMediumUserForm$ButtonLogin";
 	
 	private static final String VIEWSTATE_PARAM = "__VIEWSTATE";
-	//private static final String EVENTVALIDATION_PARAM = "__EVENTVALIDATION";
-
-	//private static final String EVENTVALIDATION_REGEX = "__EVENTVALIDATION\"\\s+value=\"([^\"]+)\"";
+	
 	/*
 	 * <div class="column6">
                 <table class="randig">
@@ -93,12 +92,49 @@ public class CoopManager implements BankManager {
                         <td class="emphasize">Beviljad kredit:</td>
                         <td>0,00 kr</td>
                     </tr>
+                    
+                    <tbody><tr class="emphasize">
+                        <td class="emphasize">Saldo:</td>
+                        <td>-16.001,74 kr</td>
+                    </tr>
+                    <tr>
+                        <td class="emphasize">Disponibelt belopp:</td>
+                        <td class="emphasize">3.852,90 kr</td>
+
+                    </tr>
+                    <tr class="emphasize">
+                        <td class="emphasize">Ej bokförda köp:</td>
+                        <td>-145,36 kr</td>
+                    </tr>
+                    <tr>
+                        <td class="emphasize">Beviljad kredit:</td>
+
+                        <td>20.000,00 kr</td>
+                    </tr>
+                    
+                    
+                    <tr class="emphasize">
+                        <td class="emphasize">Fakturerat belopp:</td>
+                        <td>5.313,34 kr</td>
+                    </tr>
+                    <tr>
+
+                        <td class="emphasize">Lägsta belopp att betala:</td>
+                        <td>200,00 kr</td>
+                    </tr>
+                    <tr class="emphasize">
+                        <td class="emphasize">Oss tillhanda senast:</td>
+                        <td>2010-05-31</td>
+                    </tr>
+
+                    
+            </tbody>
+
 	 */
 	 
 	private static final String VIEWSTATE_REGEX = "__VIEWSTATE\" value=\"([^\"]+)\"";
 	private static final String ACCOUNTS_REGEX = "Disponibelt belopp[^\n]*[^>]*>([0-9., ]+)";
-	private static final String CREDIT_REGEX = "kredit[^\n]*[^>]*>([0-9., ]+)";
-
+	
 	private BankLogin mBankLogin;
 	private Context mContext;
 
@@ -183,11 +219,12 @@ public class CoopManager implements BankManager {
 				remoteId++;
 			}
 			
-			matcher = Pattern.compile(CREDIT_REGEX).matcher(res);
+			res = HttpHelper.get(httpClient, CREDIT_URL);
+			matcher = Pattern.compile(ACCOUNTS_REGEX).matcher(res);
 			while (matcher.find()) {
 				count++;
 				int ordinal = remoteId;
-				String name = "MedMera Kredit";//Html.fromHtml(matcher.group(1)).toString().trim();
+				String name = "MedMera Visa";//Html.fromHtml(matcher.group(1)).toString().trim();
 				long balance = Long.parseLong(matcher.group(1).replaceAll("\\,|\\.| ", "")) / 100;
 				accounts.put(new AccountHashKey(remoteId, mBankLogin.getId()), new Account(remoteId,
 						mBankLogin.getId(), ordinal, name, balance));
