@@ -74,7 +74,14 @@ public class IcabankenManager implements BankManager {
 
 	private static final String EVENTVALIDATION_REGEX = "__EVENTVALIDATION\"\\s+value=\"([^\"]+)\"";
 	private static final String VIEWSTATE_REGEX = "__VIEWSTATE\"\\s+value=\"([^\"]+)\"";
-	private static final String ACCOUNTS_REGEX = "account\\.aspx\\?id=([^\"]+).+?>([^<]+)</a.+?Saldo([0-9 .,-]+)";
+	//private static final String ACCOUNTS_REGEX = "account\\.aspx\\?id=([^\"]+).+?>([^<]+)</a.+?Saldo([0-9 .,-]+)";
+
+	//Inget disponibelt belopp
+	private static final String ACCOUNTS_REGEX = "account\\.aspx\\?id=([^\"]+).+?>([^<]+)</a[^D]*Saldo([0-9 .,-]+)";
+
+	//Disponibelt belopp
+	///<div><a href="account.aspx?id=0000800577" accesskey="1">Mat pengar</a><br>- Disponibelt 133,90 kr<br>- Saldo 171,50 kr</div>
+	private static final String ACCOUNTSDISP_REGEX =  	"account\\.aspx\\?id=([^\"]+).+?>([^<]+)</a.+?Disponibelt([0-9 .,-]+)";
 
 	private BankLogin mBankLogin;
 	private Context mContext;
@@ -160,6 +167,19 @@ public class IcabankenManager implements BankManager {
 
 			int remoteId = 1;
 			int count = 0;
+			while (matcher.find()) {
+				count++;
+				
+				int ordinal = remoteId;
+				String name = Html.fromHtml(matcher.group(2)).toString().trim();
+				long balance = Long.parseLong(matcher.group(3).replaceAll("\\,|\\.| ", "")) / 100;
+				accounts.put(new AccountHashKey(remoteId, mBankLogin.getId()), new Account(remoteId,
+						mBankLogin.getId(), ordinal, name, balance));
+				remoteId++;
+			}
+			
+			matcher = Pattern.compile(ACCOUNTSDISP_REGEX).matcher(res);
+
 			while (matcher.find()) {
 				count++;
 				
