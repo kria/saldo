@@ -32,12 +32,14 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -95,6 +97,16 @@ public class Saldo extends Activity {
 		mDbAdapter.open();
 		
 		loadAccountsList();
+		
+		// work-around for alarms getting deleted on upgrade
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		String prevVersionName = prefs.getString(Constants.PREF_VERSION, null);
+		String currentVersionName = Saldo.getVersionName(this);
+		if (!currentVersionName.equals(prevVersionName)) {
+			prefs.edit().putString(Constants.PREF_VERSION, currentVersionName).commit();
+			AutoUpdateReceiver.setAlarm(this);
+		}
+		
 	}
 	
 	private void loadAccountsList() {

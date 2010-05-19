@@ -30,4 +30,5 @@ package com.adrup.saldo;
 public class Constants {
 	public static final String PREF_BASE = "Saldo";
 	public static final String PREF_UPDATE_INTERVAL = "update_interval";
+	public static final String PREF_VERSION = "version";
 }
