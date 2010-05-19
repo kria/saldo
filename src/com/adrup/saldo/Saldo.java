@@ -307,6 +307,9 @@ public class Saldo extends Activity {
 				return;
 			}
 			message.setText("finished refresh");
+			
+			// Repaint all widgets
+			AutoUpdateService.sendWidgetRefresh(Saldo.this);
 
 			// Save accounts to database..
 			Log.d(TAG, "writing accounts to db");

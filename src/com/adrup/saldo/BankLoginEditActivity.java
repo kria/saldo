@@ -24,7 +24,9 @@ package com.adrup.saldo;
 import com.adrup.saldo.bank.BankLogin;
 
 import android.app.Activity;
+import android.database.SQLException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,6 +42,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
  *
  */
 public class BankLoginEditActivity extends Activity {
+	private static final String TAG = "BankLoginEditActivity";
 
 	private EditText mNameText;
     private EditText mUsernameText;
@@ -52,7 +55,7 @@ public class BankLoginEditActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDbAdapter = new DatabaseAdapter(this);
-        mDbAdapter.open();
+        
         setContentView(R.layout.bank_logins_edit);
         
         mSpinner = (Spinner)findViewById(R.id.spinner);
@@ -74,8 +77,6 @@ public class BankLoginEditActivity extends Activity {
 			Bundle extras = getIntent().getExtras();            
 			mRowId = extras != null ? extras.getLong(BankLogin.KEY_ID): null;
 		}
-
-		populateFields();
 		
 		saveButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
@@ -95,19 +96,30 @@ public class BankLoginEditActivity extends Activity {
     
     private void populateFields() {
         if (mRowId != null) {
-            BankLogin bankLogin = mDbAdapter.fetchBankLogin(mRowId.intValue());
-            
-            mNameText.setText(bankLogin.getName());
-            mUsernameText.setText(bankLogin.getUsername());
-            mPasswordText.setText(bankLogin.getPassword());
-            mSpinner.setSelection(bankLogin.getBankId() - 1); // TODO: not very robust, fix later
+        	BankLogin bankLogin = null;
+        	try {
+	        	mDbAdapter.open();
+	        	bankLogin = mDbAdapter.fetchBankLogin(mRowId.intValue());
+        	} catch (SQLException e) {
+        		Log.e(TAG, e.getMessage(), e);
+        	} finally {
+        		mDbAdapter.close();
+        	}
+            if (bankLogin != null) {
+	            mNameText.setText(bankLogin.getName());
+	            mUsernameText.setText(bankLogin.getUsername());
+	            mPasswordText.setText(bankLogin.getPassword());
+	            mSpinner.setSelection(bankLogin.getBankId() - 1); // TODO: not very robust, fix later
+            }
         }
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(BankLogin.KEY_ID, mRowId);
+        if (mRowId != null) {
+        	outState.putLong(BankLogin.KEY_ID, mRowId);
+        }
     }
     
     @Override
@@ -129,11 +141,18 @@ public class BankLoginEditActivity extends Activity {
         int bankId = mSpinner.getSelectedItemPosition() + 1;  // TODO: not very robust, fix later
         
         BankLogin bankLogin = new BankLogin(mRowId == null ? 0 : mRowId.intValue(), bankId, name, username, password);
+        try {
+        	mDbAdapter.open();
+        	int id = mDbAdapter.saveBankLogin(bankLogin);
+            if (id > 0) {
+                mRowId = Long.valueOf(id);
+            }
+    	} catch (SQLException e) {
+    		Log.e(TAG, e.getMessage(), e);
+    	} finally {
+    		mDbAdapter.close();
+    	}
         
-        int id = mDbAdapter.saveBankLogin(bankLogin);
-        if (id > 0) {
-            mRowId = Long.valueOf(id);
-        }
     }
     
     public class BankSelectedListener implements OnItemSelectedListener {

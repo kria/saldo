@@ -90,7 +90,7 @@ public class AutoUpdateReceiver extends BroadcastReceiver {
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-		int triggerAtTime = 20 * 1000;
+		int triggerAtTime = 60 * 1000;
 		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, interval, pendingIntent);
 	}
 

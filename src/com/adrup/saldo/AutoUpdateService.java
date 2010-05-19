@@ -153,7 +153,7 @@ public class AutoUpdateService extends Service {
 				}
 				// TODO: this could be more directed..
 				if (hasChanges) {
-					sendWidgetRefresh();
+					sendWidgetRefresh(AutoUpdateService.this);
 				}
 
 			} catch (SQLException e) {
@@ -183,11 +183,11 @@ public class AutoUpdateService extends Service {
 		nm.notify(id, notification);
 	}
 	
-    private void sendWidgetRefresh() {
+    public static void sendWidgetRefresh(Context context) {
         Intent updateIntent = new Intent(AutoUpdateReceiver.WIDGET_REFRESH);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                getBaseContext(), 0, updateIntent,
+        		context, 0, updateIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
             try {
 				pendingIntent.send();
