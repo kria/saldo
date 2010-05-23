@@ -23,18 +23,20 @@ package com.adrup.saldo.bank.nordea;
 
 import com.adrup.http.HttpException;
 import com.adrup.http.HttpHelper;
-import com.adrup.saldo.Account;
-import com.adrup.saldo.AccountHashKey;
+import com.adrup.saldo.SaldoHttpClient;
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
+import com.adrup.saldo.bank.RemoteAccount;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
 import android.text.Html;
 import android.util.Log;
 
@@ -80,43 +82,34 @@ public class NordeaManager implements BankManager {
 		"sendFund[^>]*>([^<]+)<[^\\n]*[^>]*>([0-9.,-]+)";
 
  	
-	
+	private BankLogin mBankLogin;
+	private Context mContext;
 
-	private BankLogin bankLogin;
-	
-	public NordeaManager(BankLogin bankLogin) {
-		this.bankLogin = bankLogin;
+	public NordeaManager(BankLogin bankLogin, Context context) {
+		this.mBankLogin = bankLogin;
+		this.mContext = context;
 	}
 
 	@Override
 	public String getName() {
 		return NAME;
 	}
-	
+
     @Override
-    public Account getAccount(int id) throws BankException {
-    	Map<AccountHashKey, Account> accounts = getAccounts();
-        return accounts.get(KEY_PREFIX + String.valueOf(id));
-    }
-    
-    @Override
-    public Map<AccountHashKey, Account> getAccounts() throws BankException {
-    	Map<AccountHashKey, Account> accounts = new LinkedHashMap<AccountHashKey, Account>();
-		return getAccounts(accounts);
+    public Map<AccountHashKey, RemoteAccount> getAccounts() throws BankException {
+		return getAccounts(new LinkedHashMap<AccountHashKey, RemoteAccount>());
     }
     @Override
-    public Map<AccountHashKey, Account> getAccounts(Map<AccountHashKey, Account> accounts) throws BankException {
+    public Map<AccountHashKey, RemoteAccount> getAccounts(Map<AccountHashKey, RemoteAccount> accounts) throws BankException {
         Log.d(TAG, "-> getAccounts()");
-        HttpClient httpClient = new DefaultHttpClient();
-        //TODO: grab internal agent
-        //httpClient.getParams().setParameter(HttpProtocolParams.USER_AGENT, USER_AGENT);
+        HttpClient httpClient = new SaldoHttpClient(mContext);
 
         try {
             // Do login
             List<NameValuePair> parameters = new ArrayList<NameValuePair>(3);
             //parameters.add(new BasicNameValuePair(TOKEN_PARAM, token));
-            parameters.add(new BasicNameValuePair(USER_PARAM, bankLogin.getUsername()));
-            parameters.add(new BasicNameValuePair(PASS_PARAM, bankLogin.getPassword()));
+            parameters.add(new BasicNameValuePair(USER_PARAM, mBankLogin.getUsername()));
+            parameters.add(new BasicNameValuePair(PASS_PARAM, mBankLogin.getPassword()));
             parameters.add(new BasicNameValuePair(OBJECT_PARAM, "TT00"));
             parameters.add(new BasicNameValuePair(CHECKCODE_PARAM, Integer.toString(((int) (System.currentTimeMillis() / 1000L)))+"123"));
 
@@ -141,20 +134,18 @@ public class NordeaManager implements BankManager {
             int ordinal=1;
             while (matcher.find()) {
 
-            	int remoteId = Integer.parseInt(matcher.group(1));
+            	String remoteId = matcher.group(1);
                 ordinal = Integer.parseInt(matcher.group(1));
                 String name = Html.fromHtml(matcher.group(2)).toString();
                 long balance = Long.parseLong(matcher.group(3).replaceAll("\\,|\\.", ""))/100;
-                accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
+                accounts.put(new AccountHashKey(remoteId, mBankLogin.getId()), new Account(remoteId, mBankLogin.getId(), ordinal, name, balance));
             }
-            
-            
             
             //CREDIT CARDS
             Log.d(TAG, "getting account info...");
             String res2 = HttpHelper.get(httpClient, CREDITS_URL);
-            Log.d(TAG, "accounts html dump:");
-            Log.d(TAG, res);
+            //Log.d(TAG, "accounts html dump:");
+            //Log.d(TAG, res);
             pattern = Pattern.compile(CREDITS_REGEX);
             matcher = pattern.matcher(res2);
             int i = ordinal;
@@ -165,7 +156,7 @@ public class NordeaManager implements BankManager {
                 
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
-                accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
+                accounts.put(new AccountHashKey(String.valueOf(remoteId), mBankLogin.getId()), new Account(String.valueOf(remoteId), mBankLogin.getId(), ordinal, name, balance));
             }
             
            //FONDER
@@ -179,7 +170,7 @@ public class NordeaManager implements BankManager {
                
                 String name = Html.fromHtml(matcher.group(1)).toString();
                 long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.", ""))/100;
-                accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
+                accounts.put(new AccountHashKey(String.valueOf(remoteId), mBankLogin.getId()), new Account(String.valueOf(remoteId), mBankLogin.getId(), ordinal, name, balance));
             }
             
             

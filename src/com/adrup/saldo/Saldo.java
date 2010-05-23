@@ -21,10 +21,13 @@
 
 package com.adrup.saldo;
 
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
 import com.adrup.saldo.bank.BankManagerFactory;
+import com.adrup.saldo.bank.RemoteAccount;
 import com.adrup.util.SectionedAdapter;
 
 import android.app.Activity;
@@ -199,6 +202,9 @@ public class Saldo extends Activity {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		Log.d(TAG, "onMenuItemSelected()");
 		switch (item.getItemId()) {
+		case R.id.menu_options_banks:
+			startActivity(new Intent(this, BankListActivity.class));
+			return true;
 		case R.id.menu_options_settings:
 			startActivity(new Intent(this, SettingsActivity.class));
 			return true;
@@ -252,7 +258,7 @@ public class Saldo extends Activity {
 		}
 	}
 
-	private class UpdateAccountsTask extends AsyncTask<Void, String, Map<AccountHashKey, Account>> {
+	private class UpdateAccountsTask extends AsyncTask<Void, String, Map<AccountHashKey, RemoteAccount>> {
 		private static final String TAG = "Saldo.UpdateAccountsTask";
 		private View progress = null;
 		private TextView message = null;
@@ -265,22 +271,22 @@ public class Saldo extends Activity {
 		}
 
 		@Override
-		protected Map<AccountHashKey, Account> doInBackground(Void... params) {
+		protected Map<AccountHashKey, RemoteAccount> doInBackground(Void... params) {
 			Log.d(TAG, "doInBackground()");
 
 			List<BankLogin> bankLogins = mDbAdapter.fetchAllBankLogins();
 
 			if (bankLogins.isEmpty()) {
-				publishProgress("No banks added!");
+				publishProgress(Saldo.this.getText(R.string.msg_no_banks).toString());
 				return null;
 			}
 
-			Map<AccountHashKey, Account> accounts = new LinkedHashMap<AccountHashKey, Account>();
+			Map<AccountHashKey, RemoteAccount> accounts = new LinkedHashMap<AccountHashKey, RemoteAccount>();
 
 			for (BankLogin bankLogin : bankLogins) {
 				try {
 					BankManager bankManager = BankManagerFactory.createBankManager(Saldo.this, bankLogin);
-					String msg = String.format("Fetching accounts from %s.", bankLogin.getName());
+					String msg = String.format(Saldo.this.getText(R.string.msg_fetching_accounts).toString(), bankLogin.getName());
 					Log.d(TAG, msg);
 					publishProgress(msg);
 					bankManager.getAccounts(accounts);
@@ -307,7 +313,7 @@ public class Saldo extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(Map<AccountHashKey, Account> accounts) {
+		protected void onPostExecute(Map<AccountHashKey, RemoteAccount> accounts) {
 			Log.d(TAG, "onPostExecute()");
 			progress.setVisibility(View.INVISIBLE);
 
@@ -315,10 +321,9 @@ public class Saldo extends Activity {
 				return;
 			}
 			if (accounts.isEmpty()) {
-				message.setText("no accounts retrieved");
+				message.setText(Saldo.this.getText(R.string.msg_no_accounts_retrieved));
 				return;
 			}
-			message.setText("finished refresh");
 			
 			// Repaint all widgets
 			AutoUpdateService.sendWidgetRefresh(Saldo.this);
@@ -328,7 +333,7 @@ public class Saldo extends Activity {
 			DatabaseAdapter dbAdapter = new DatabaseAdapter(Saldo.this);
 			try {
 				dbAdapter.open();
-				for (Account acc : accounts.values()) {
+				for (RemoteAccount acc : accounts.values()) {
 					boolean result = dbAdapter.saveAccount(acc);
 					Log.d(TAG, "createAccount result= " + result);
 				}

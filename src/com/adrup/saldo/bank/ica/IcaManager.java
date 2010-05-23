@@ -24,13 +24,14 @@ package com.adrup.saldo.bank.ica;
 import com.adrup.http.EasySSLSocketFactory;
 import com.adrup.http.HttpException;
 import com.adrup.http.HttpHelper;
-import com.adrup.saldo.Account;
-import com.adrup.saldo.AccountHashKey;
 import com.adrup.saldo.SaldoHttpClient;
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
+import com.adrup.saldo.bank.RemoteAccount;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -86,18 +87,12 @@ public class IcaManager implements BankManager {
 	}
 
 	@Override
-	public Account getAccount(int id) throws BankException {
-		throw new UnsupportedOperationException();
+	public Map<AccountHashKey, RemoteAccount> getAccounts() throws BankException {
+		return getAccounts(new LinkedHashMap<AccountHashKey, RemoteAccount>());
 	}
 
 	@Override
-	public Map<AccountHashKey, Account> getAccounts() throws BankException {
-		Map<AccountHashKey, Account> accounts = new LinkedHashMap<AccountHashKey, Account>();
-		return getAccounts(accounts);
-	}
-
-	@Override
-	public Map<AccountHashKey, Account> getAccounts(Map<AccountHashKey, Account> accounts) throws BankException {
+	public Map<AccountHashKey, RemoteAccount> getAccounts(Map<AccountHashKey, RemoteAccount> accounts) throws BankException {
 		Log.d(TAG, "getAccounts()");
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
@@ -156,7 +151,7 @@ public class IcaManager implements BankManager {
 				int ordinal = remoteId;
 				String name = Html.fromHtml(matcher.group(1)).toString();
 				long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.| ", "")) / 100;
-				accounts.put(new AccountHashKey(remoteId, mBankLogin.getId()), new Account(remoteId,
+				accounts.put(new AccountHashKey(String.valueOf(remoteId), mBankLogin.getId()), new Account(String.valueOf(remoteId),
 						mBankLogin.getId(), ordinal, name, balance));
 				remoteId++;
 			}

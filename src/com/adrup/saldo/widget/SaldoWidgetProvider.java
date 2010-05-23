@@ -21,12 +21,12 @@
 
 package com.adrup.saldo.widget;
 
-import com.adrup.saldo.Account;
 import com.adrup.saldo.AutoUpdateReceiver;
 import com.adrup.saldo.DatabaseAdapter;
 import com.adrup.saldo.R;
 import com.adrup.saldo.Saldo;
 import com.adrup.saldo.Util;
+import com.adrup.saldo.bank.Account;
 import com.adrup.saldo.bank.BankLogin;
 
 import android.app.PendingIntent;

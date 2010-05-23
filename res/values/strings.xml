@@ -5,33 +5,47 @@
     <string name="version">Version %s</string>
     <string name="by">by Kristian Adrup 2010</string>
     <string name="url_project">http://github.com/kria/saldo</string>
-    <string name="disclaimer">This application is unofficial and not supported by Swedbank.</string>
+    <string name="disclaimer">Saldo is unofficial and not supported by any of the banks.</string>
     
     <string name="web_user_agent">Saldo/%s (Linux; U; Android %s) Apache-HttpClient/4.0</string>
     
-    <string name="main_instructions">Set user/password in the settings menu and then hit refresh.</string>
-    <string name="refresh">Refresh</string>
+    <string name="main_instructions">Set user/password in the Banks menu and then hit Update.</string>
+    <string name="refresh">Update</string>
     
 	<string name="widget_text">--- kr</string>
+	<string name="widgetconfig_empty">You can't add a widget without any bank accounts.</string>
     
-    <string name="menu_item_about">About</string>
+    <string name="menu_item_banks">Banks</string>
     <string name="menu_item_settings">Settings</string>
+    <string name="menu_item_about">About</string>
     
-    <string name="pref_cat_account">Account</string>
-    <string name="pref_username_title">Personnummer</string>
-    <!--  <string name="pref_username_dialogtitle">ID dialog title</string> -->
-    <string name="pref_password_title">Password</string>
-    <!--  <string name="pref_password_dialogtitle">Password dialog title</string>
-    <string name="pref_password_summary">Password summary</string> -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_updates">Automatic updates</string>
+    <string name="settings_updates_interval_prompt">Choose update interval</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_display">Notify</string>
+    <string name="settings_notifications_sound">Sound</string>
     
-    <string name="appwidget_configure_instructions">This text will be shown before the date in our example widget.</string>
-    <string name="appwidget_prefix_default">Oh hai</string>
+    <string name="banklogins_title">Banks</string>
+    <string name="banklogins_empty">No banks added</string>
+    <string name="banklogins_add_btn">Add bank</string>
+    <string name="banklogins_menu_delete">Delete bank</string>
     
-    <string name="banklogins_menu_new">New bank login</string>
-    <string name="banklogins_menu_delete">Delete bank login</string>
-
-    <string name="bank_prompt">Choose a bank</string>
-    <string name="settings_update_interval_prompt">Choose update interval</string>
+    <string name="bankloginedit_title">Bank login</string>
+    <string name="bankloginedit_bank">Bank</string>
+    <string name="bankloginedit_name">Name</string>
+    <string name="bankloginedit_username">Username/Personnummer</string>
+    <string name="bankloginedit_password">Password</string>
+    
+    <string name="bankloginedit_bank_prompt">Choose bank</string>
+    
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    
+    <string name="msg_no_accounts_retrieved">No accounts retrieved.</string>
+    <string name="msg_refresh_finished">Refresh finished.</string>
+    <string name="msg_no_banks">No banks to refresh.</string>
+    <string name="msg_fetching_accounts">Fetching accounts from %s.</string>
 
     <string-array name="banks_array">
         <item>Swedbank</item>
@@ -39,7 +53,7 @@
         <item>Länsförsäkringar Bank</item>
         <item>ICA</item>
         <item>ICA Banken</item>
-        <item>coop</item>
+        <item>Coop</item>
     </string-array>
     
     <string-array name="update_interval_array">
@@ -48,9 +62,6 @@
         <item>Half day</item>
         <item>Hour</item>
         <item>Half hour</item>
-        <item>15 Min</item>
-    </string-array>
-    
-    
-    
+        <item>15 min</item>
+    </string-array>   
 </resources>

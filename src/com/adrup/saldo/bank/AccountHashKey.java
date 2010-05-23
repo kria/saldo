@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.adrup.saldo;
+package com.adrup.saldo.bank;
 
 import com.adrup.util.HashCodeUtil;
 
@@ -30,16 +30,16 @@ import com.adrup.util.HashCodeUtil;
  * 
  */
 public final class AccountHashKey {
-	private int mRemoteId;
+	private String mRemoteId;
 	private int mBankLoginId;
 	private int mHashCode;
 
-	public AccountHashKey(int remoteId, int bankLoginId) {
+	public AccountHashKey(String remoteId, int bankLoginId) {
 		this.mRemoteId = remoteId;
 		this.mBankLoginId = bankLoginId;
 	}
 
-	public int getRemoteId() {
+	public String getRemoteId() {
 		return mRemoteId;
 	}
 
@@ -54,7 +54,7 @@ public final class AccountHashKey {
 		if (!(that instanceof AccountHashKey))
 			return false;
 		AccountHashKey thatAccountKey = (AccountHashKey) that;
-		return this.mRemoteId == thatAccountKey.mRemoteId && this.mBankLoginId == thatAccountKey.mBankLoginId;
+		return this.mRemoteId.equals(thatAccountKey.mRemoteId) && this.mBankLoginId == thatAccountKey.mBankLoginId;
 	}
 
 	@Override

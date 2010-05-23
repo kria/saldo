@@ -21,7 +21,11 @@
 
 package com.adrup.saldo;
 
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.BankLogin;
+import com.adrup.saldo.bank.RemoteAccount;
+import com.adrup.saldo.bank.Account.AccountFlags;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,7 +52,7 @@ import java.util.Map;
 public class DatabaseAdapter {
 	private static final String TAG = "DatabaseAdapter";
 	private static final String DATABASE_NAME = "data";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 4;
 
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -57,9 +61,14 @@ public class DatabaseAdapter {
 	 * Database creation sql statement
 	 */
 	private static final String DATABASE_CREATE_ACCOUNTS = "create table " + Account.DATABASE_TABLE + "("
-			+ Account.KEY_ID + " integer primary key autoincrement, " + Account.KEY_REMOTE_ID + " integer not null, "
-			+ Account.KEY_BANK_LOGIN_ID + " integer not null, " + Account.KEY_ORDINAL + " integer not null, "
-			+ Account.KEY_NAME + " text not null, " + Account.KEY_BALANCE + " integer not null);";
+			+ Account.KEY_ID + " integer primary key autoincrement, " 
+			+ Account.KEY_REMOTE_ID + " integer not null, "
+			+ Account.KEY_BANK_LOGIN_ID + " integer not null, " 
+			+ Account.KEY_ORDINAL + " integer not null, "
+			+ Account.KEY_NAME + " text not null, "
+			+ Account.KEY_ALIAS + " text null, " 
+			+ Account.KEY_BALANCE + " integer not null, "
+			+ Account.KEY_FLAGS + " integer not null);";
 
 	private static final String DATABASE_CREATE_BANK_LOGINS = "create table " + BankLogin.DATABASE_TABLE + "("
 			+ BankLogin.KEY_ID + " integer primary key autoincrement, " + BankLogin.KEY_BANK_ID + " integer not null, "
@@ -155,6 +164,40 @@ public class DatabaseAdapter {
 			return true;
 		}
 	}
+	
+	/**
+	 * Create a new or update an old account. 
+	 * 
+	 * @param account
+	 * @return true if successful, otherwise false
+	 */
+	public boolean saveAccount(RemoteAccount account) {
+		Log.d(TAG, "saveAccount(RemoteAccount)");
+		ContentValues args = new ContentValues();
+
+		args.put(Account.KEY_REMOTE_ID, account.getRemoteId());
+		args.put(Account.KEY_BANK_LOGIN_ID, account.getBankLoginId());
+		args.put(Account.KEY_ORDINAL, account.getOrdinal());
+		args.put(Account.KEY_NAME, account.getName());
+		args.put(Account.KEY_BALANCE, account.getBalance());
+
+		// first try to update row
+		if (mDb.update(Account.DATABASE_TABLE, args, Account.KEY_REMOTE_ID + "=" + account.getRemoteId() + " AND "
+				+ Account.KEY_BANK_LOGIN_ID + "=" + account.getBankLoginId(), null) > 0) {
+			Log.d(TAG, "saveAccount: account updated");
+			return true;
+		}
+
+		// if row doesn't exist, try to insert it
+		args.put(Account.KEY_FLAGS, AccountFlags.VISIBLE | AccountFlags.NOTIFY);
+		if (mDb.insert(Account.DATABASE_TABLE, null, args) == -1) {
+			Log.d(TAG, "saveAccount: insert failed");
+			return false;
+		} else {
+			Log.d(TAG, "saveAccount: account inserted");
+			return true;
+		}
+	}
 
 	/**
 	 * Delete the account with the given rowId
@@ -175,9 +218,16 @@ public class DatabaseAdapter {
 	 */
 	public Cursor fetchAllAccountsCursor() {
 		Log.d(TAG, "fetchAllAccountsCursor()");
-		return mDb.query(Account.DATABASE_TABLE, new String[] { Account.KEY_ID, Account.KEY_REMOTE_ID,
-				Account.KEY_BANK_LOGIN_ID, Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, null, null,
-				null, null, Account.KEY_BANK_LOGIN_ID + "," + Account.KEY_REMOTE_ID);
+		return mDb.query(Account.DATABASE_TABLE, new String[] { 
+				Account.KEY_ID, 
+				Account.KEY_REMOTE_ID,
+				Account.KEY_BANK_LOGIN_ID, 
+				Account.KEY_ORDINAL, 
+				Account.KEY_NAME, 
+				Account.KEY_ALIAS,
+				Account.KEY_BALANCE,
+				Account.KEY_FLAGS }, null, null,
+				null, null, Account.KEY_BANK_LOGIN_ID + "," + Account.KEY_ORDINAL);
 	}
 	
 	/**
@@ -187,10 +237,17 @@ public class DatabaseAdapter {
 	 */
 	public Cursor fetchAccountsCursor(int bankLoginId) {
 		Log.d(TAG, "fetchAllAccountsCursor()");
-		return mDb.query(Account.DATABASE_TABLE, new String[] { Account.KEY_ID, Account.KEY_REMOTE_ID,
-				Account.KEY_BANK_LOGIN_ID, Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, 
+		return mDb.query(Account.DATABASE_TABLE, new String[] { 
+				Account.KEY_ID, 
+				Account.KEY_REMOTE_ID,
+				Account.KEY_BANK_LOGIN_ID, 
+				Account.KEY_ORDINAL, 
+				Account.KEY_NAME,
+				Account.KEY_ALIAS,
+				Account.KEY_BALANCE,
+				Account.KEY_FLAGS }, 
 				Account.KEY_BANK_LOGIN_ID + "=" + bankLoginId, null,
-				null, null, Account.KEY_REMOTE_ID);
+				null, null, Account.KEY_ORDINAL);
 	}
 	
 	public Map<AccountHashKey, Account> fetchAllAccountsMap() {
@@ -220,9 +277,16 @@ public class DatabaseAdapter {
 	 */
 	public Cursor fetchAccountCursor(int id) throws SQLException {
 		Log.d(TAG, "fetchAccount()");
-		Cursor mCursor = mDb.query(true, Account.DATABASE_TABLE, new String[] { Account.KEY_ID, Account.KEY_REMOTE_ID,
-				Account.KEY_BANK_LOGIN_ID, Account.KEY_ORDINAL, Account.KEY_NAME, Account.KEY_BALANCE }, Account.KEY_ID
-				+ "=" + id, null, null, null, null, null);
+		Cursor mCursor = mDb.query(true, Account.DATABASE_TABLE, new String[] { 
+				Account.KEY_ID, 
+				Account.KEY_REMOTE_ID,
+				Account.KEY_BANK_LOGIN_ID, 
+				Account.KEY_ORDINAL, 
+				Account.KEY_NAME, 
+				Account.KEY_ALIAS,
+				Account.KEY_BALANCE,
+				Account.KEY_FLAGS }, 
+				Account.KEY_ID + "=" + id, null, null, null, null, null);
 		return mCursor;
 	}
 
@@ -242,13 +306,15 @@ public class DatabaseAdapter {
 	private Account populateAccount(Cursor cursor) {
 		Log.d(TAG, "populateAccount()");
 		int id = cursor.getInt(cursor.getColumnIndexOrThrow(Account.KEY_ID));
-		int remoteId = cursor.getInt(cursor.getColumnIndexOrThrow(Account.KEY_REMOTE_ID));
+		String remoteId = cursor.getString(cursor.getColumnIndexOrThrow(Account.KEY_REMOTE_ID));
 		int bankId = cursor.getInt(cursor.getColumnIndexOrThrow(Account.KEY_BANK_LOGIN_ID));
 		int ordinal = cursor.getInt(cursor.getColumnIndexOrThrow(Account.KEY_ORDINAL));
 		String name = cursor.getString(cursor.getColumnIndexOrThrow(Account.KEY_NAME));
+		String alias = cursor.getString(cursor.getColumnIndexOrThrow(Account.KEY_ALIAS));
 		long balance = cursor.getLong(cursor.getColumnIndexOrThrow(Account.KEY_BALANCE));
+		int flags = cursor.getInt(cursor.getColumnIndexOrThrow(Account.KEY_FLAGS));
 
-		Account account = new Account(id, remoteId, bankId, ordinal, name, balance);
+		Account account = new Account(id, remoteId, bankId, ordinal, name, alias, balance, flags);
 		Log.d(TAG, "account populated");
 		return account;
 	}

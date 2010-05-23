@@ -21,6 +21,8 @@
 
 package com.adrup.saldo;
 
+import com.adrup.saldo.bank.Account;
+
 import android.database.Cursor;
 import android.view.View;
 import android.widget.SimpleCursorAdapter;

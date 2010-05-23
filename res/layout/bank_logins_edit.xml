@@ -8,29 +8,29 @@
 	
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
-		android:text="Bank" />
+		android:text="@string/bankloginedit_bank" />
 	<Spinner 
         android:id="@+id/spinner"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:prompt="@string/bank_prompt"
+        android:prompt="@string/bankloginedit_bank_prompt"
     />
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
-		android:text="Name" />
+		android:text="@string/bankloginedit_name" />
 	<EditText android:id="@+id/layout_bankloginedit_name"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" />
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
-		android:text="Username" />
+		android:text="@string/bankloginedit_username" />
 	<EditText android:id="@+id/layout_bankloginedit_username"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
 		android:inputType="text" />
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
-		android:text="Password" />
+		android:text="@string/bankloginedit_password" />
 	<EditText android:id="@+id/layout_bankloginedit_password"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
@@ -40,12 +40,12 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<Button android:id="@+id/layout_bankloginedit_save_btn" 
-			android:text="Save"
+			android:text="@string/save"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1" />
 		<Button android:id="@+id/layout_bankloginedit_cancel_btn" 
-			android:text="Cancel"
+			android:text="@string/cancel"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1" />

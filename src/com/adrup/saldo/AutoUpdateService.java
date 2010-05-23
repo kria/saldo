@@ -21,11 +21,14 @@
 
 package com.adrup.saldo;
 
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
 import com.adrup.saldo.bank.BankManagerFactory;
+import com.adrup.saldo.bank.RemoteAccount;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -107,14 +110,14 @@ public class AutoUpdateService extends Service {
 				dbAdapter.open();
 
 				Map<AccountHashKey, Account> localAccounts = dbAdapter.fetchAllAccountsMap();
-				Map<AccountHashKey, Account> remoteAccounts = new LinkedHashMap<AccountHashKey, Account>();
+				Map<AccountHashKey, RemoteAccount> remoteAccounts = new LinkedHashMap<AccountHashKey, RemoteAccount>();
 				List<BankLogin> bankLogins = dbAdapter.fetchAllBankLogins();
 				for (BankLogin bankLogin : bankLogins) {
 					try {
 						BankManager bankManager = BankManagerFactory.createBankManager(AutoUpdateService.this, bankLogin);
 						bankManager.getAccounts(remoteAccounts);
 
-						for (Account acc : remoteAccounts.values()) {
+						for (RemoteAccount acc : remoteAccounts.values()) {
 							boolean result = dbAdapter.saveAccount(acc);
 							Log.d(TAG, "createAccount result= " + result);
 						}
@@ -135,7 +138,7 @@ public class AutoUpdateService extends Service {
 				boolean hasChanges = false;
 				for (AccountHashKey key : localAccounts.keySet()) {
 					Account localAccount = localAccounts.get(key);
-					Account remoteAccount = remoteAccounts.get(key);
+					RemoteAccount remoteAccount = remoteAccounts.get(key);
 					if (localAccount != null && remoteAccount != null
 							&& localAccount.getBalance() != remoteAccount.getBalance()) {
 						hasChanges = true;
@@ -170,9 +173,15 @@ public class AutoUpdateService extends Service {
 	}
 
 	private void sendNotification(String msg) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (!prefs.getBoolean(Constants.PREF_NOTIFY, true)) return;
+		
 		NotificationManager nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new Notification(R.drawable.icon, msg, System.currentTimeMillis());
+		
+		if (prefs.getBoolean(Constants.PREF_SOUND, true)) {
 		notification.defaults |= Notification.DEFAULT_SOUND;
+		}
 
 		CharSequence contentTitle = this.getString(R.string.app_name);
 		CharSequence contentText = msg;

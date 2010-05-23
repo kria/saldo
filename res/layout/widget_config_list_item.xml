@@ -19,7 +19,6 @@
          android:layout_height="fill_parent"
          android:layout_toRightOf="@id/layout_widget_config_ordinal"
          android:layout_marginLeft="10dp"
-         android:text="Privat"
          />
  
      <TextView android:id="@+id/layout_widget_config_balance"
@@ -27,7 +26,6 @@
          android:layout_width="wrap_content"
          android:layout_height="fill_parent"
          android:layout_alignParentRight="true"
-         android:text="15 324 kr"
          />
  </RelativeLayout>
  

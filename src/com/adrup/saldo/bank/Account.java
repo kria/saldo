@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.adrup.saldo;
+package com.adrup.saldo.bank;
 
 /**
  * Holds information about a bank account and maps to a database row. Used both when retrieving data from online banks
@@ -29,7 +29,7 @@ package com.adrup.saldo;
  * @author Kristian Adrup
  * 
  */
-public class Account {
+public class Account implements RemoteAccount {
 
 	public static final String DATABASE_TABLE = "accounts";
 	public static final String KEY_ID = "_id";
@@ -37,22 +37,26 @@ public class Account {
 	public static final String KEY_BANK_LOGIN_ID = "bank_login_id";
 	public static final String KEY_ORDINAL = "ordinal";
 	public static final String KEY_NAME = "name";
+	public static final String KEY_ALIAS = "alias";
 	public static final String KEY_BALANCE = "balance";
+	public static final String KEY_FLAGS = "flags";
 	// TODO: Add timestamp.
 
 	private int mId;
-	private int mRemoteId;
+	private String mRemoteId;
 	private int mBankLoginId;
 	private int mOrdinal;
 	private String mName;
+	private String mAlias;
 	private long mBalance;
+	private int mFlags = AccountFlags.VISIBLE | AccountFlags.NOTIFY;
 
 	/**
 	 * Creates account with a unknown id (i.e. not yet persisted).
 	 * 
 	 * @see #Account(int, int, int, int, String, long)
 	 */
-	public Account(int remoteId, int bankLoginId, int ordinal, String name, long balance) {
+	public Account(String remoteId, int bankLoginId, int ordinal, String name, long balance) {
 		this.mRemoteId = remoteId;
 		this.mBankLoginId = bankLoginId;
 		this.mOrdinal = ordinal;
@@ -74,9 +78,11 @@ public class Account {
 	 * @param balance
 	 *            the account balance
 	 */
-	public Account(int id, int remoteId, int bankLoginId, int ordinal, String name, long balance) {
+	public Account(int id, String remoteId, int bankLoginId, int ordinal, String name, String alias, long balance, int flags) {
 		this(remoteId, bankLoginId, ordinal, name, balance);
 		this.mId = id;
+		this.mAlias = alias;
+		this.mFlags = flags;
 	}
 
 	public int getId() {
@@ -87,6 +93,7 @@ public class Account {
 		this.mId = id;
 	}
 
+	@Override
 	public int getBankLoginId() {
 		return mBankLoginId;
 	}
@@ -94,15 +101,17 @@ public class Account {
 	public void setBankId(int bankLoginId) {
 		this.mBankLoginId = bankLoginId;
 	}
-
-	public int getRemoteId() {
+	
+	@Override
+	public String getRemoteId() {
 		return mRemoteId;
 	}
 
-	public void setRemoteId(int remoteId) {
+	public void setRemoteId(String remoteId) {
 		this.mRemoteId = remoteId;
 	}
 
+	@Override
 	public int getOrdinal() {
 		return mOrdinal;
 	}
@@ -111,6 +120,7 @@ public class Account {
 		this.mOrdinal = ordinal;
 	}
 
+	@Override
 	public String getName() {
 		return mName;
 	}
@@ -118,7 +128,16 @@ public class Account {
 	public void setName(String name) {
 		this.mName = name;
 	}
+	
+	public String getAlias() {
+		return mAlias;
+	}
 
+	public void setAlias(String alias) {
+		this.mAlias = alias;
+	}
+	
+	@Override
 	public long getBalance() {
 		return mBalance;
 	}
@@ -126,5 +145,18 @@ public class Account {
 	public void setBalance(long balance) {
 		this.mBalance = balance;
 	}
+	
+	public int getFlags() {
+		return mFlags;
+	}
 
+	public void setFlags(int flags) {
+		this.mFlags = flags;
+	}
+
+	public static final class AccountFlags {
+		public static final int NONE = 0;
+		public static final int VISIBLE = 1;
+		public static final int NOTIFY = 2;
+	}
 }

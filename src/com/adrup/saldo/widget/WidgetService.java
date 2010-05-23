@@ -21,15 +21,16 @@
 
 package com.adrup.saldo.widget;
 
-import com.adrup.saldo.Account;
-import com.adrup.saldo.AccountHashKey;
 import com.adrup.saldo.DatabaseAdapter;
 import com.adrup.saldo.R;
 import com.adrup.saldo.Util;
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
 import com.adrup.saldo.bank.BankManagerFactory;
+import com.adrup.saldo.bank.RemoteAccount;
 import com.adrup.util.NumberUtil;
 
 import android.app.Service;
@@ -193,9 +194,9 @@ public class WidgetService extends Service {
 				
 				// Show progress bar
 				
-				Map<AccountHashKey, Account> accounts = bankManager.getAccounts();
+				Map<AccountHashKey, RemoteAccount> accounts = bankManager.getAccounts();
 
-				Account account = accounts.get(new AccountHashKey(dbAccount.getRemoteId(), bankLogin.getId()));
+				RemoteAccount account = accounts.get(new AccountHashKey(dbAccount.getRemoteId(), bankLogin.getId()));
 				if (account == null) {
 					publishProgress("unable to get account");
 					Log.e(TAG, "account is null!");
@@ -263,7 +264,7 @@ public class WidgetService extends Service {
 				dbAdapter = new DatabaseAdapter(WidgetService.this);
 				try {
 					dbAdapter.open();
-					for (Account acc : accounts.values()) {
+					for (RemoteAccount acc : accounts.values()) {
 						boolean result = dbAdapter.saveAccount(acc);
 						Log.d(TAG, "createAccount result= " + result);
 					}

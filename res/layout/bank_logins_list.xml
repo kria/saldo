@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent">
+	
+	<ListView android:id="@id/android:list" 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<TextView android:id="@id/android:empty"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"
+		android:padding="10dp" 
+		android:textSize="20sp" 
+		android:text="@string/banklogins_empty" />
+	<Button android:id="@+id/layout_banklogins_add_btn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/banklogins_add_btn"
+        />
+</RelativeLayout>

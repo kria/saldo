@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="by">av Kristian Adrup 2010</string>
+    <string name="disclaimer">Saldo är inofficiell och stöds ej av någon av bankerna.</string>
+    
+    <string name="main_instructions">Ange användare/lösenord i Banker menyn och tryck sen på Uppdatera.</string>
+    <string name="refresh">Uppdatera</string>
+    
+	<string name="widget_text">--- kr</string>
+	<string name="widgetconfig_empty">Du kan inte lägga till en widget utan några bankkonton.</string>
+    
+    <string name="menu_item_banks">Banker</string>
+    <string name="menu_item_settings">Inställningar</string>
+    <string name="menu_item_about">Om</string>
+    
+    <string name="settings_title">Inställningar</string>
+    <string name="settings_updates">Automatiska uppdateringar</string>
+    <string name="settings_updates_interval_prompt">Välj uppdateringsintervall</string>
+    <string name="settings_notifications">Notifieringar</string>
+    <string name="settings_notifications_display">Notifiera</string>
+    <string name="settings_notifications_sound">Ljud</string>
+    
+    <string name="banklogins_title">Banker</string>
+    <string name="banklogins_empty">Inga banker tillagda</string>
+    <string name="banklogins_add_btn">Lägg till bank</string>
+    <string name="banklogins_menu_delete">Radera bank</string>
+    
+    <string name="bankloginedit_title">Bank login</string>
+    <string name="bankloginedit_bank">Bank</string>
+    <string name="bankloginedit_name">Namn</string>
+    <string name="bankloginedit_username">Användarnamn/Personnummer</string>
+    <string name="bankloginedit_password">Lösenord</string>
+    
+    <string name="bankloginedit_bank_prompt">Välj bank</string>
+    
+    <string name="save">Spara</string>
+    <string name="cancel">Avbryt</string>
+    
+    <string name="msg_no_accounts_retrieved">Inga konton hämtade.</string>
+    <string name="msg_refresh_finished">Uppdatering klar.</string>
+    <string name="msg_no_banks">Inga banker att uppdatera.</string>
+    <string name="msg_fetching_accounts">Hämtar konton från %s.</string>
+
+    <string-array name="banks_array">
+        <item>Swedbank</item>
+        <item>Nordea</item>
+        <item>Länsförsäkringar Bank</item>
+        <item>ICA</item>
+        <item>ICA Banken</item>
+        <item>Coop</item>
+    </string-array>
+    
+    <string-array name="update_interval_array">
+        <item>Av</item>
+        <item>Dag</item>
+        <item>Halvdag</item>
+        <item>Timme</item>
+        <item>Halvtimme</item>
+        <item>15 min</item>
+    </string-array>   
+</resources>

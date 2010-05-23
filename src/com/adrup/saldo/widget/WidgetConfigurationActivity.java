@@ -21,10 +21,10 @@
 
 package com.adrup.saldo.widget;
 
-import com.adrup.saldo.Account;
 import com.adrup.saldo.AccountsViewBinder;
 import com.adrup.saldo.DatabaseAdapter;
 import com.adrup.saldo.R;
+import com.adrup.saldo.bank.Account;
 
 import android.app.ListActivity;
 import android.appwidget.AppWidgetManager;
@@ -36,8 +36,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RemoteViews;
 import android.widget.SimpleCursorAdapter;
@@ -58,7 +58,6 @@ public class WidgetConfigurationActivity extends ListActivity {
 	private static final String ACCOUNT_IDS_PREFIX_KEY = "account_ids_";
 
 	int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-	EditText mAppWidgetPrefix;
 
 	private Cursor mCursor;
 	private DatabaseAdapter dbAdapter;
@@ -78,7 +77,10 @@ public class WidgetConfigurationActivity extends ListActivity {
 		setResult(RESULT_CANCELED);
 
 		// Set the view layout resource to use.
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.widget_configuration);
+		
+
 
 		// Bind the action for the save button.
 		Button okButton = (Button) findViewById(R.id.layout_widget_config_ok_btn);

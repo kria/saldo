@@ -23,18 +23,20 @@ package com.adrup.saldo.bank.swedbank;
 
 import com.adrup.http.HttpException;
 import com.adrup.http.HttpHelper;
-import com.adrup.saldo.Account;
-import com.adrup.saldo.AccountHashKey;
+import com.adrup.saldo.SaldoHttpClient;
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
+import com.adrup.saldo.bank.RemoteAccount;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
 import android.text.Html;
 import android.util.Log;
 
@@ -56,7 +58,6 @@ import java.util.regex.Pattern;
 public class SwedbankManager implements BankManager {
 	private static final String TAG = "SwedbankManager";
 	private static final String NAME = "Swedbank";
-	public final static String KEY_PREFIX = "SWE_";
 
 	private static final String LOGIN_URL = "https://mobilbank.swedbank.se/banking/swedbank/login.html";
 	private static final String ACCOUNTS_URL = "https://mobilbank.swedbank.se/banking/swedbank/accounts.html";
@@ -64,39 +65,33 @@ public class SwedbankManager implements BankManager {
 	private static final String USER_PARAM = "xyz";
 	private static final String PASS_PARAM = "zyx";
 
-	private static final String USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.5; en-se; HTC Hero Build/CUPCAKE) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1";
 	private static final String TOKEN_REGEX = "_csrf_token\"[^>]+value=\"([^\"]+)\"";
 	private static final String ACCOUNTS_REGEX = 
 		"<a accesskey=\"\\d+\" href=\"/banking/swedbank/(account|loan)\\.html\\?id=(\\d+)\">\\s*" +
 		"<span class=\"icon\">&nbsp;(\\d+)&nbsp;</span>([^<]+)<br/><span class=\"secondary\">([\\d -]+)</span>";
 
-	private BankLogin bankLogin;
-	
-	public SwedbankManager(BankLogin bankLogin) {
-		this.bankLogin = bankLogin;
+	private BankLogin mBankLogin;
+	private Context mContext;
+
+	public SwedbankManager(BankLogin bankLogin, Context context) {
+		this.mBankLogin = bankLogin;
+		this.mContext = context;
 	}
 	
 	@Override
 	public String getName() {
 		return NAME;
 	}
-	@Override
-	public Account getAccount(int id) throws BankException {
-		Map<AccountHashKey, Account> accounts = getAccounts();
-		return accounts.get(KEY_PREFIX + String.valueOf(id));
-	}
 
 	@Override
-	public Map<AccountHashKey, Account> getAccounts() throws BankException {
-		Map<AccountHashKey, Account> accounts = new LinkedHashMap<AccountHashKey, Account>();
-		return getAccounts(accounts);
+	public Map<AccountHashKey, RemoteAccount> getAccounts() throws BankException {
+		return getAccounts(new LinkedHashMap<AccountHashKey, RemoteAccount>());
 	}
+	
 	@Override
-	public Map<AccountHashKey, Account> getAccounts(Map<AccountHashKey, Account> accounts) throws BankException {
+	public Map<AccountHashKey, RemoteAccount> getAccounts(Map<AccountHashKey, RemoteAccount> accounts) throws BankException {
 		Log.d(TAG, "-> getAccounts()");
-		HttpClient httpClient = new DefaultHttpClient();
-		//TODO: grab internal agent
-		//httpClient.getParams().setParameter(HttpProtocolParams.USER_AGENT, USER_AGENT);
+		HttpClient httpClient = new SaldoHttpClient(mContext);
 
 		try {
 			// First get token
@@ -114,8 +109,8 @@ public class SwedbankManager implements BankManager {
 			// Then do login
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>(3);
 			parameters.add(new BasicNameValuePair(TOKEN_PARAM, token));
-			parameters.add(new BasicNameValuePair(USER_PARAM, bankLogin.getUsername()));
-			parameters.add(new BasicNameValuePair(PASS_PARAM, bankLogin.getPassword()));
+			parameters.add(new BasicNameValuePair(USER_PARAM, mBankLogin.getUsername()));
+			parameters.add(new BasicNameValuePair(PASS_PARAM, mBankLogin.getPassword()));
 
 			Log.d(TAG, "logging in...");
 			res = HttpHelper.post(httpClient, LOGIN_URL, parameters);
@@ -143,11 +138,11 @@ public class SwedbankManager implements BankManager {
 					Log.d(TAG, i + ":" + matcher.group(i));
 				}
 				String accountType = matcher.group(1);
-				int remoteId = Integer.parseInt(matcher.group(2));
+				String remoteId = matcher.group(2);
 				int ordinal = Integer.parseInt(matcher.group(3));
 				String name = Html.fromHtml(matcher.group(4)).toString();
 				long balance = Long.parseLong(matcher.group(5).replaceAll(" ", ""));
-				accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(), ordinal, name, balance));
+				accounts.put(new AccountHashKey(remoteId, mBankLogin.getId()), new Account(remoteId, mBankLogin.getId(), ordinal, name, balance));
 			}
 
 		} catch (IOException e) {

@@ -23,18 +23,19 @@ package com.adrup.saldo.bank.lf;
 
 import com.adrup.http.HttpException;
 import com.adrup.http.HttpHelper;
-import com.adrup.saldo.Account;
-import com.adrup.saldo.AccountHashKey;
+import com.adrup.saldo.SaldoHttpClient;
+import com.adrup.saldo.bank.Account;
+import com.adrup.saldo.bank.AccountHashKey;
 import com.adrup.saldo.bank.AuthenticationException;
 import com.adrup.saldo.bank.BankException;
 import com.adrup.saldo.bank.BankLogin;
 import com.adrup.saldo.bank.BankManager;
+import com.adrup.saldo.bank.RemoteAccount;
 
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -74,12 +75,12 @@ public class LfBankManager implements BankManager {
 	private static final String TOKEN_REGEX = "var\\s+token\\s*=\\s*'([^']+)'";
 	private static final String ACCOUNTS_REGEX = "<a.+>([^<]+)</span></a>.+>([\\d -,]+)</span></td>";
 
-	private BankLogin bankLogin;
-	private Context context;
+	private BankLogin mBankLogin;
+	private Context mContext;
 
 	public LfBankManager(BankLogin bankLogin, Context context) {
-		this.bankLogin = bankLogin;
-		this.context = context;
+		this.mBankLogin = bankLogin;
+		this.mContext = context;
 	}
 
 	@Override
@@ -88,20 +89,14 @@ public class LfBankManager implements BankManager {
 	}
 
 	@Override
-	public Account getAccount(int id) throws BankException {
-		throw new UnsupportedOperationException();
+	public Map<AccountHashKey, RemoteAccount> getAccounts() throws BankException {
+		return getAccounts(new LinkedHashMap<AccountHashKey, RemoteAccount>());
 	}
 
 	@Override
-	public Map<AccountHashKey, Account> getAccounts() throws BankException {
-		Map<AccountHashKey, Account> accounts = new LinkedHashMap<AccountHashKey, Account>();
-		return getAccounts(accounts);
-	}
-
-	@Override
-	public Map<AccountHashKey, Account> getAccounts(Map<AccountHashKey, Account> accounts) throws BankException {
+	public Map<AccountHashKey, RemoteAccount> getAccounts(Map<AccountHashKey, RemoteAccount> accounts) throws BankException {
 		Log.d(TAG, "getAccounts()");
-		HttpClient httpClient = new DefaultHttpClient();
+		HttpClient httpClient = new SaldoHttpClient(mContext);
 
 		try {
 			// get login page
@@ -139,8 +134,8 @@ public class LfBankManager implements BankManager {
 			parameters.add(new BasicNameValuePair("__EVENTARGUMENT", ""));
 			parameters.add(new BasicNameValuePair(VIEWSTATE_PARAM, viewState));
 			parameters.add(new BasicNameValuePair("selMechanism", "PIN-kod"));
-			parameters.add(new BasicNameValuePair(USER_PARAM, bankLogin.getUsername()));
-			parameters.add(new BasicNameValuePair(PASS_PARAM, bankLogin.getPassword()));
+			parameters.add(new BasicNameValuePair(USER_PARAM, mBankLogin.getUsername()));
+			parameters.add(new BasicNameValuePair(PASS_PARAM, mBankLogin.getPassword()));
 			parameters.add(new BasicNameValuePair("btnLogIn.x", "39"));
 			parameters.add(new BasicNameValuePair("btnLogIn.y", "11"));
 			parameters.add(new BasicNameValuePair(EVENTVALIDATION_PARAM, eventValidation));
@@ -199,7 +194,7 @@ public class LfBankManager implements BankManager {
 				int ordinal = remoteId;
 				String name = Html.fromHtml(matcher.group(1)).toString();
 				long balance = Long.parseLong(matcher.group(2).replaceAll("\\,|\\.| ", "")) / 100;
-				accounts.put(new AccountHashKey(remoteId, bankLogin.getId()), new Account(remoteId, bankLogin.getId(),
+				accounts.put(new AccountHashKey(String.valueOf(remoteId), mBankLogin.getId()), new Account(String.valueOf(remoteId), mBankLogin.getId(),
 						ordinal, name, balance));
 				remoteId++;
 			}

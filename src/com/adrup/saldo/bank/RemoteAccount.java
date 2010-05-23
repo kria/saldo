@@ -21,26 +21,22 @@
 
 package com.adrup.saldo.bank;
 
-import java.util.Map;
-
 /**
- * An interface that exposes the common functions of the different banks. This interface needs to be implemented to add
- * new banks to the application.
+ * An interface that exposes all information available from accounts gotten from a {@link com.adrup.saldo.bank.BankManager
+ * BankManager}.
  * 
  * @author Kristian Adrup
  * 
  */
-public interface BankManager {
-	public final static int SWEDBANK = 1;
-	public final static int NORDEA = 2;
-	public final static int LANSFORSAKRINGAR = 3;
-	public final static int ICA = 4;
-	public final static int ICABANKEN = 5;
-	public final static int COOP = 6;
+public interface RemoteAccount {
 
-	public String getName();
-
-	public Map<AccountHashKey, RemoteAccount> getAccounts() throws BankException;
-
-	public Map<AccountHashKey, RemoteAccount> getAccounts(Map<AccountHashKey, RemoteAccount> accounts) throws BankException;
+	int getBankLoginId();
+	
+	String getRemoteId();
+	
+	int getOrdinal();
+	
+	String getName();
+	
+	long getBalance();	
 }

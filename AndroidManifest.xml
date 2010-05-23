@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.adrup.saldo" android:versionCode="17" android:versionName="0.5.2">
+	package="com.adrup.saldo" android:versionCode="18" android:versionName="1.0.0">
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
 		android:debuggable="false">
 		<activity android:name=".Saldo" android:launchMode="singleTop"
@@ -10,10 +10,9 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".SettingsActivity" android:label="@string/app_name">
-		</activity>
-		<activity android:name=".BankLoginEditActivity">
-		</activity>
+		<activity android:name=".SettingsActivity" android:label="@string/settings_title"></activity>
+		<activity android:name=".BankListActivity" android:label="@string/banklogins_title"></activity>
+		<activity android:name=".BankLoginEditActivity" android:label="@string/bankloginedit_title"></activity>
 		<activity android:name=".widget.WidgetConfigurationActivity"
 					android:theme="@android:style/Theme.Dialog">
 			<intent-filter>

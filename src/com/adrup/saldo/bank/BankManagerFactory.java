@@ -50,9 +50,9 @@ public class BankManagerFactory {
 		switch (bankLogin.getBankId()) {
 
 		case BankManager.SWEDBANK:
-			return new SwedbankManager(bankLogin);
+			return new SwedbankManager(bankLogin, context);
 		case BankManager.NORDEA:
-			return new NordeaManager(bankLogin);
+			return new NordeaManager(bankLogin, context);
 		case BankManager.LANSFORSAKRINGAR:
 			return new LfBankManager(bankLogin, context);
 		case BankManager.ICA:
