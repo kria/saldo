@@ -324,6 +324,7 @@ public class Saldo extends Activity {
 				message.setText(Saldo.this.getText(R.string.msg_no_accounts_retrieved));
 				return;
 			}
+			message.setText(Saldo.this.getText(R.string.msg_refresh_finished));
 			
 			// Repaint all widgets
 			AutoUpdateService.sendWidgetRefresh(Saldo.this);
