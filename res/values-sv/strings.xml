@@ -40,15 +40,6 @@
     <string name="msg_refresh_finished">Uppdatering klar.</string>
     <string name="msg_no_banks">Inga banker att uppdatera.</string>
     <string name="msg_fetching_accounts">Hämtar konton från %s.</string>
-
-    <string-array name="banks_array">
-        <item>Swedbank</item>
-        <item>Nordea</item>
-        <item>Länsförsäkringar Bank</item>
-        <item>ICA</item>
-        <item>ICA Banken</item>
-        <item>Coop</item>
-    </string-array>
     
     <string-array name="update_interval_array">
         <item>Av</item>
