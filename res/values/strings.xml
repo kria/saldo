@@ -54,6 +54,7 @@
         <item>ICA</item>
         <item>ICA Banken</item>
         <item>Coop</item>
+        <item>First Card</item>
     </string-array>
     
     <string-array name="update_interval_array">
