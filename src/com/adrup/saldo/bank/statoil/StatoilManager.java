@@ -179,10 +179,10 @@ public class StatoilManager implements BankManager {
 
         } catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-			throw new IcaException(e.getMessage(), e);
+			throw new StatoilException(e.getMessage(), e);
 		} catch (HttpException e) {
 			Log.e(TAG, e.getMessage(), e);
-			throw new IcaException(e.getMessage(), e);
+			throw new StatoilException(e.getMessage(), e);
 		} finally {
 			httpClient.getConnectionManager().shutdown();
 		}

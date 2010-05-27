@@ -211,10 +211,10 @@ public class PreemManager implements BankManager {
 
         } catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-			throw new IcaException(e.getMessage(), e);
+			throw new PreemException(e.getMessage(), e);
 		} catch (HttpException e) {
 			Log.e(TAG, e.getMessage(), e);
-			throw new IcaException(e.getMessage(), e);
+			throw new PreemException(e.getMessage(), e);
 		} finally {
 			httpClient.getConnectionManager().shutdown();
 		}
