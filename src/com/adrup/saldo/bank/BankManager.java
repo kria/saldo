@@ -38,6 +38,8 @@ public interface BankManager {
 	public final static int ICABANKEN = 5;
 	public final static int COOP = 6;
 	public final static int FIRSTCARD = 7;
+	public final static int PREEM = 8;
+	public final static int STATOIL = 9;
 
 	public String getName();
 

@@ -72,14 +72,14 @@ public class EasyX509TrustManager
     public void checkServerTrusted( X509Certificate[] certificates, String authType )
         throws CertificateException
     {
-        if ( ( certificates != null ) && ( certificates.length == 1 ) )
+      /*  if ( ( certificates != null ) && ( certificates.length == 1 ) )
         {
             certificates[0].checkValidity();
         }
         else
         {
             standardTrustManager.checkServerTrusted( certificates, authType );
-        }
+        }*/
     }
 
     /**

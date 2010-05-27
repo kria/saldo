@@ -28,6 +28,8 @@ import com.adrup.saldo.bank.swedbank.SwedbankManager;
 import com.adrup.saldo.bank.icabanken.IcabankenManager;
 import com.adrup.saldo.bank.coop.CoopManager;
 import com.adrup.saldo.bank.firstcard.FirstcardManager;
+import com.adrup.saldo.bank.preem.PreemManager;
+import com.adrup.saldo.bank.statoil.StatoilManager;
 
 import android.content.Context;
 
@@ -64,6 +66,10 @@ public class BankManagerFactory {
 			return new CoopManager(bankLogin, context);
 		case BankManager.FIRSTCARD:
 			return new FirstcardManager(bankLogin, context);
+		case BankManager.PREEM:
+			return new PreemManager(bankLogin, context);
+		case BankManager.STATOIL:
+			return new StatoilManager(bankLogin, context);
 		default:
 			throw new BankException("Illegal Bank type.");
 		}
